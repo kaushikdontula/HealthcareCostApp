@@ -6,6 +6,10 @@ import json
 # in network
 
 class MrfData_In:
+
+    # try accept for different data and use static typing for data types
+    # pydantic?
+    
     # service_name - string - OF NOTE - I think this is maybe optionional but could help us during development
     # service_code - int
     # provider_references - array
