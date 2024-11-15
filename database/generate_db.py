@@ -1,7 +1,7 @@
 import sqlite3
 
 # Connect to the database (This will create the .db file)
-conn = sqlite3.connect('healthcare_pricing.db')
+conn = sqlite3.connect('database/healthcare_pricing.db')
 cursor = conn.cursor()
 
 # Create the tables based on the schema
@@ -45,9 +45,8 @@ CREATE TABLE IF NOT EXISTS ProviderService (
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS Services (
-    service_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    billing_code INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
-    description TEXT,
     category TEXT
 );
 """)
@@ -75,7 +74,6 @@ CREATE TABLE IF NOT EXISTS Pricing (
     negotiated_rate REAL NOT NULL,
     negotiated_type TEXT NOT NULL,
     billing_class TEXT,
-    price REAL NOT NULL,
     expiration_date DATE
 );
 """)
