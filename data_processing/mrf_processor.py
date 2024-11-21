@@ -3,11 +3,38 @@ import sys
 import os
 import sqlite3
 from datetime import datetime
+from sqlalchemy import BigInteger
+from sqlalchemy.sql import insert
+from datetime import date
+
+
+from sqlalchemy.ext.compiler import compiles
+
+
+
+
+from sqlalchemy import create_engine, Column, Integer, Float, String, Date, Table, MetaData
+from sqlalchemy.orm import declarative_base, sessionmaker
+
+
+class SLBigInteger(BigInteger):
+    pass
+
+@compiles(SLBigInteger, 'sqlite')
+def bi_c(element, compiler, **kw):
+    return "INTEGER"
+
+@compiles(SLBigInteger)
+def bi_c(element, compiler, **kw):
+    return compiler.visit_BIGINT(element, **kw)
+
+# Define the database and table structure
+Base = declarative_base()
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
 
-from  models.MrfData import MrfData_In
+from  models.MrfData import Service
 # Open the large JSON file
 from decimal import Decimal
  
@@ -42,7 +69,7 @@ def main():
                     # print(f"{key}: {val}")
                     neg_rate_arr.append(val)
             rate_num += 1
-            Mrf_obj = MrfData_In(i["name"], i["billing_code"], providers, neg_rate_arr[0], neg_rate_arr[1], neg_rate_arr[2], neg_rate_arr[3])
+            Mrf_obj = Service(i["name"], i["billing_code"], providers, neg_rate_arr[0], neg_rate_arr[1], neg_rate_arr[2], neg_rate_arr[3])
             print("PRINTING NEW MRF OBJECT")
             Mrf_obj.print_mrf()
             Mrf_arr.append(Mrf_obj)
@@ -104,11 +131,27 @@ def get_array_from_key(file_path, array_key, limit=None):
 # billing class - string
 
 def insert_into_database(mrf_obj_arr):
-    with sqlite3.connect('database/healthcare_pricing.db') as conn:
-        for mrf_obj in mrf_obj_arr:
-            service_id = add_service(conn, mrf_obj)
-            pricing_id = add_pricing(conn, mrf_obj)
-            # provider_service_id = add_provider_services(conn, mrf_obj)
+
+
+    engine = create_engine('sqlite:///database/healthcare_pricing.db', echo=True)
+
+# Create the table if it doesn't exist
+
+    # Create a session
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    metadata = MetaData()
+
+
+    
+# Commit the transaction
+    
+    # with sqlite3.connect('database/healthcare_pricing.db') as conn:
+    for mrf_obj in mrf_obj_arr:
+        # service_id = add_service(session, mrf_obj, metadata)
+        pricing_id = add_pricing(session, mrf_obj, metadata)
+        # provider_service_id = add_provider_services(conn, mrf_obj)
 
     print(f"inserted into db with id val {pricing_id}")
 
@@ -126,19 +169,34 @@ def insert_into_database(mrf_obj_arr):
 #     return cur.lastrowid
 
 
-def add_pricing(conn, service):
+def add_pricing(session, service, metadata):
+
+    pricing = Table(
+        "Pricing", metadata,  # Table name and metadata
+        Column("pricing_id", Integer, primary_key=True, autoincrement=True),  # Primary key with autoincrement
+        Column("negotiated_rate", Float, nullable=False),  # Non-nullable column
+        Column("negotiated_type", String, nullable=False),  # Non-nullable column
+        Column("billing_class", String, nullable=True),  # Nullable column
+        Column("expiration_date", Date, nullable=True)  # Nullable column
+    )
     # insert table statement
-    sql = '''INSERT INTO Pricing(negotiated_rate,negotiated_type,billing_class,expiration_date)
-             VALUES(?,?,?,?) '''
-    
-    cur = conn.cursor()
+    result = session.execute(
+    insert(pricing)
+    .values(
+        negotiated_rate=service.negotiated_rate,
+        negotiated_type=service.negotiated_type,
+        billing_class=service.billing_class,
+        expiration_date=datetime.strptime(service.expiration_date, "%Y-%m-%d").date(),
+    )
+    .returning(pricing.c.pricing_id)  # Returning the primary key
+)
 
     # have to convert negotiaed rate to float or it bricks
-    cur.execute(sql, [float(service.negotiated_rate), service.negotiated_type, service.billing_class,service.expiration_date])
+    # cur.execute(sql, [service.negotiated_rate, service.negotiated_type, service.billing_class,service.expiration_date])
 
-    conn.commit()
+    # session.commit()
 
-    return cur.lastrowid
+    return result
 
 def add_service(conn, service):
     sql = '''INSERT INTO Services(billing_code,name,category)

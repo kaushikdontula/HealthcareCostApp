@@ -1,29 +1,35 @@
 import os
 import sys
 import json
+import datetime
+
+from dataclasses import dataclass
+
 
 
 # in network
 
-class MrfData_In:
+class Service:
 
     # try accept for different data and use static typing for data types
     # pydantic?
     
     # service_name - string - OF NOTE - I think this is maybe optionional but could help us during development
-    # service_code - int
-    # provider_references - array
-    # negotiated_type - string
-    # negotiated_rate - float
-    # expiration_date - date
-    # billing class - string
 
-    def __init__(self, service_name, billing_code, provider_references, negotiated_type, negotiated_rate, expiration_date, billing_class):
+    service_name: str
+    billing_code: int
+    provider_references: list
+    negotiated_type: str
+    negotiated_rate: float
+    expiration_date: datetime.datetime
+    billing_class: str
+
+    def __init__(self, service_name: str, billing_code: int, provider_references: list, negotiated_type: str, negotiated_rate: float, expiration_date: datetime.datetime, billing_class: str) -> None:
         self.service_name = service_name
         self.billing_code = billing_code
         self.provider_references = provider_references
         self.negotiated_type = negotiated_type
-        self.negotiated_rate = negotiated_rate
+        self.negotiated_rate = float(negotiated_rate)
         self.expiration_date = expiration_date
         self.billing_class = billing_class
 
