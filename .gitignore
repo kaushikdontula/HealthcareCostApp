@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 
 mrf_files/
+regional_mrf_files/
 
 # C extensions
 *.so
