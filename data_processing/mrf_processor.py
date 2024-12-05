@@ -35,6 +35,8 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
 
 from  models.MrfData import Service
+from  models.MrfData import Provider
+
 # Open the large JSON file
 from decimal import Decimal
  
@@ -44,12 +46,57 @@ file_path = "./mrf_files/2024-10-01_NEW_NW-COMMERCIAL-01_in-network-rates.json"
 # could also try to replace line endings with linux ones
 
 def main():
-    # read_partial_json(file_path, limit=50)
-    # get_array_from_key(file_path, "negotiated_rates", limit=10)
+    # proccess MRF file
+    # service_data = get_array_from_key(file_path, "in_network", 10)
+    # # transform MRF data into 'Service' class objects
+    # service_arr = service_data_to_objects(service_data)
+    # insert Service class objects into DB in Service and Pricing table
 
-    Mrf_arr = []
+    provider_data = get_array_from_key(file_path, "provider_references", 2)
+    provider_data_objects(provider_data)
+    # insert_into_database(service_arr)
 
-    data = get_array_from_key(file_path, "in_network", 10)
+
+
+def provider_data_objects(data):
+    obj_arr = []
+    # print(data)
+    for i in data:
+    #     print(i["name"])
+    #     print(i["billing_code"])
+        provider_group_id = i["provider_group_id"]
+
+        provider_group = i["provider_groups"]
+    #     print(f"number of prices {len(rates)}")
+    #     print("***Example Rates***")
+    #     rate_num = 1
+        for j in provider_group:
+                providers = j
+                npi_arr = []
+                tin = None#{"type": None, "value": None}
+                # for k in providers: #type -> rate -> date -> class
+               
+                tin = int(providers["tin"]["value"])
+                for val in providers["npi"]:
+                    npi_arr.append(val)
+                    obj_arr.append(Provider(provider_group_id, val, tin))
+
+    
+                # print(f"provider_group_id: {provder_group_id}")
+                # # print(f"pr")
+                # print(f"npi: {npi_arr}") 
+                # print(f"tin: {tin}")
+
+        for provider in obj_arr:
+            provider.print_provider()
+                # rate_num += 1
+                # Mrf_obj = Service(i["name"], i["billing_code"], providers, neg_rate_arr[0], neg_rate_arr[1], neg_rate_arr[2], neg_rate_arr[3])
+                # Mrf_obj.print_mrf()
+                # obj_arr.append(Mrf_obj)
+
+
+def service_data_to_objects(data):
+    obj_arr = []
     for i in data:
         print(i["name"])
         print(i["billing_code"])
@@ -57,26 +104,17 @@ def main():
         print(f"number of prices {len(rates)}")
         print("***Example Rates***")
         rate_num = 1
-        providersArr = []
         for j in rates:
-            # print(f"***Rate {rate_num}***")
-            providers = j["provider_references"]
-            # providersArr.append(providers)
-            # print(f"provider_references: {providers}")
-            neg_rate_arr = []
-            for k in j["negotiated_prices"]: #type -> rate -> date -> class
-                for key,val in k.items():
-                    # print(f"{key}: {val}")
-                    neg_rate_arr.append(val)
-            rate_num += 1
-            Mrf_obj = Service(i["name"], i["billing_code"], providers, neg_rate_arr[0], neg_rate_arr[1], neg_rate_arr[2], neg_rate_arr[3])
-            print("PRINTING NEW MRF OBJECT")
-            Mrf_obj.print_mrf()
-            Mrf_arr.append(Mrf_obj)
-        
-    
+                providers = j["provider_references"]
+                neg_rate_arr = []
+                for k in j["negotiated_prices"]: #type -> rate -> date -> class
+                    for key,val in k.items():
+                        neg_rate_arr.append(val)
+                rate_num += 1
+                Mrf_obj = Service(i["name"], i["billing_code"], providers, neg_rate_arr[0], neg_rate_arr[1], neg_rate_arr[2], neg_rate_arr[3])
+                Mrf_obj.print_mrf()
+                obj_arr.append(Mrf_obj)
 
-    insert_into_database(Mrf_arr)
 
 
     # class DecimalEncoder(json.JSONEncoder):

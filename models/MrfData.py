@@ -42,3 +42,21 @@ class Service:
         print(f"Expiration Date: {self.expiration_date}")
         print(f"Billing Class: {self.billing_class}")
 
+
+class Provider:
+    
+    provider_group_id: int
+    npi: int
+    tin: int
+
+
+    def __init__(self, provider_group_id: int,npi: int, tin: int):
+        self.npi = npi
+        self.tin = int(tin)
+        self.provider_group_id = provider_group_id
+    
+    def print_provider(self):
+        print(f"Provider Group ID: {self.provider_group_id}")
+        print(f"TIN: {self.tin}")
+        print(f"NPI: {self.npi}")
+
