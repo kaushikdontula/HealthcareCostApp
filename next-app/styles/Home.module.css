@@ -1,0 +1,56 @@
+/* Navbar styling */
+.nav {
+    background: #333;
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.nav ul {
+    list-style-type: none;
+    display: flex;
+    gap: 1rem;
+}
+
+.nav ul li a {
+    color: #fff;
+    text-decoration: none;
+}
+
+/* Login Button Styling (Top Right Corner) */
+.loginButton {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #28a745;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+/* Main content styling */
+.main {
+    flex-grow: 1;  /* Ensures the main content takes up available space */
+    padding: 2rem;
+    padding-bottom: 200px; /* This is what keeps the footer at the bottom of the page. MUST BE THE SAME AS THE FOOTER*/ 
+    text-align: center;
+}
+
+.section {
+    margin: 2rem 0;
+}
+
+/* Footer styling */
+.footer {
+    background: #333;
+    color: #868686;
+    text-align: center;
+    margin-top: 360px;  /* Margin from the top */
+    padding: 1rem 0;
+    width: 100%;
+}
