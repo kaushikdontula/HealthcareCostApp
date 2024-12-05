@@ -9,7 +9,8 @@ from  models.MrfData import MrfData_In
 # Open the large JSON file
 from decimal import Decimal
  
-file_path = "./mrf_files/2024-10-01_NEW_NW-COMMERCIAL-01_in-network-rates.json"
+# file_path = "./mrf_files/2024-10-01_NEW_NW-COMMERCIAL-01_in-network-rates.json"
+file_path = "regional_mrf_files/2024-11-01_NEW_NW-COMMERCIAL-01_in-network-rates.json"
 # add try accept clause for errors
 # try utf8, then latin1, etc (check whatever byte code windows uses)
 # could also try to replace line endings with linux ones

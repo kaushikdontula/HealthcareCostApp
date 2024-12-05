@@ -29,7 +29,7 @@ class MrfData_In:
 
     def print_mrf(self):
         print(f"Service name: {self.service_name}")
-        print(f"Billing Code: {self.billing_code}")
+        print(f"Billing Code: {self.billing_code}") #CPT code that identifies the procedure
         print(f"Provider References: {self.provider_references}")
         print(f"Negotiated Type: {self.negotiated_type}")
         print(f"Negotiated Rate: {self.negotiated_rate}")
