@@ -1,29 +1,23 @@
-// components/ChatComponent.js
 import React, { useState } from 'react';
-import styles from '../../styles/Chatbot.module.css';
+import { FiMenu, FiX } from 'react-icons/fi';
 
 export default function ChatComponent() {
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
-    const handleInputChange = (e) => {
-        setInput(e.target.value);
-    };
+    const handleInputChange = (e) => setInput(e.target.value);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!input) return;
 
-        // Add user message to chat
         const userMessage = { text: input, sender: 'user' };
         setMessages((prevMessages) => [...prevMessages, userMessage]);
 
-        // Call the ChatGPT API
         const response = await fetch('/api/chatgpt', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message: input }),
         });
 
@@ -31,29 +25,74 @@ export default function ChatComponent() {
         const botMessage = { text: data.reply, sender: 'bot' };
         setMessages((prevMessages) => [...prevMessages, botMessage]);
 
-        // Clear input
         setInput('');
     };
 
+    const toggleSidebar = () => {
+        setSidebarOpen(!sidebarOpen);
+    };
+
     return (
-        <div className={styles.chatContainer}>
-            <div className={styles.chatDisplay}>
-                {messages.map((msg, index) => (
-                    <div key={index} className={msg.sender === 'user' ? styles.userMessage : styles.botMessage}>
-                        {msg.text}
-                    </div>
-                ))}
+        <div className="flex h-screen relative">
+            {/* Sidebar */}
+            <div
+                className={`fixed top-16 left-0 bg-[#1A202C] text-gray-200 w-64 h-full p-4 transition-transform duration-300 transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
+            >
+                {/* X Icon positioned at the top right of the sidebar */}
+                <button
+                    onClick={toggleSidebar}
+                    className="absolute top-4 right-4 text-white p-2 rounded-md focus:outline-none"
+                >
+                    <FiX size={24} />
+                </button>
+
+                <h2 className="text-xl font-semibold mb-4">Chat History</h2>
+                <ul className="overflow-y-auto h-full">
+                    {messages.map((msg, index) => (
+                        <li key={index} className="mb-2 p-3 rounded-lg bg-gray-800">
+                            <strong>{msg.sender === 'user' ? 'You' : 'Bot'}:</strong>
+                            <p>{msg.text}</p>
+                        </li>
+                    ))}
+                </ul>
             </div>
-            <form onSubmit={handleSubmit} className={styles.inputForm}>
-                <input
-                    type="text"
-                    value={input}
-                    onChange={handleInputChange}
-                    placeholder="Type your message..."
-                    className={styles.inputBox}
-                />
-                <button type="submit">Send</button>
-            </form>
+
+            {/* Main Chat Area */}
+            <div
+                className={`flex-1 bg-gradient-to-r from-teal-700 to-blue-800 p-6 transition-all duration-300 ${sidebarOpen ? 'ml-64' : ''}`}
+            >
+                {/* Sidebar Toggle Button */}
+                {!sidebarOpen && (
+                    <button
+                        onClick={toggleSidebar}
+                        className="absolute top-4 left-4 text-white p-2 rounded-md focus:outline-none z-20"
+                    >
+                        <FiMenu size={24} />
+                    </button>
+                )}
+
+                {/* Chat Header - Centered */}
+                <h2 className="text-2xl font-bold text-white mb-4 text-center w-full mt-15">
+                    Healthcare Cost Assistant
+                </h2>
+
+                {/* Input Form */}
+                <form onSubmit={handleSubmit} className="mt-4 flex justify-center">
+                    <input
+                        type="text"
+                        value={input}
+                        onChange={handleInputChange}
+                        placeholder="Message Healthcare Cost Assistant"
+                        className="w-full max-w-3xl p-4 border border-gray-300 rounded-l-lg shadow-md focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all"
+                    />
+                    <button
+                        type="submit"
+                        className="bg-teal-500 text-white px-6 py-3 rounded-r-lg hover:bg-teal-600 focus:ring-2 focus:ring-teal-400 transition-all"
+                    >
+                        Send
+                    </button>
+                </form>
+            </div>
         </div>
     );
-};
+}
