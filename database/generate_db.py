@@ -45,8 +45,9 @@ CREATE TABLE IF NOT EXISTS ProviderService (
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS Services (
-    billing_code INTEGER PRIMARY KEY AUTOINCREMENT,
+    service_id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
+    description TEXT,
     category TEXT
 );
 """)
@@ -54,9 +55,9 @@ CREATE TABLE IF NOT EXISTS Services (
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS Providers (
     provider_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    npi TEXT UNIQUE,
-    tin TEXT UNIQUE
+    name TEXT,
+    npi TEXT,
+    tin TEXT
 );
 """)
 
@@ -74,6 +75,7 @@ CREATE TABLE IF NOT EXISTS Pricing (
     negotiated_rate REAL NOT NULL,
     negotiated_type TEXT NOT NULL,
     billing_class TEXT,
+    price REAL NOT NULL,
     expiration_date DATE
 );
 """)
@@ -99,3 +101,15 @@ conn.commit()
 conn.close()
 
 print("Database created successfully!")
+
+if __name__ == "__main__":
+    main()
+    from sqlalchemy import create_engine, inspect
+
+    engine = create_engine('sqlite:///healthcare_pricing.db')
+    inspector = inspect(engine)
+    data = inspector.get_table_names()
+    if 'Providers' in data:
+        print("Table exists")
+    else:
+        print("Table does not exist")
