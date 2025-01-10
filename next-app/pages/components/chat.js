@@ -1,10 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FiMenu, FiX } from 'react-icons/fi';
 
 export default function ChatComponent() {
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
     const [sidebarOpen, setSidebarOpen] = useState(false);
+
+    // Health check API
+    const [healthStatus, setHealthStatus] = useState(null);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        // Fetch health check status from the backend
+        const fetchHealthCheck = async () => {
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/healthcheck/');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch health check status');
+                }
+                const data = await response.json();
+                setHealthStatus(data);
+            } catch (err) {
+                setError(err.message);
+            }
+        };
+
+        fetchHealthCheck();
+    }, []);
 
     const handleInputChange = (e) => setInput(e.target.value);
 
@@ -71,10 +93,24 @@ export default function ChatComponent() {
                     </button>
                 )}
 
-                {/* Chat Header - Centered */}
+                {/* Chat Header */}
                 <h2 className="text-2xl font-bold text-white mb-4 text-center w-full mt-15">
                     Healthcare Cost Assistant
                 </h2>
+
+                {/* Display Health Check Status */}
+                <div className="mb-4 text-center">
+                    {healthStatus ? (
+                        <p className="text-white">
+                            <strong>Status:</strong> {healthStatus.status} |{" "}
+                            <strong>Message:</strong> {healthStatus.message}
+                        </p>
+                    ) : error ? (
+                        <p className="text-red-400">{error}</p>
+                    ) : (
+                        <p className="text-white">Fetching health check status...</p>
+                    )}
+                </div>
 
                 {/* Input Form */}
                 <form onSubmit={handleSubmit} className="mt-4 flex justify-center">
