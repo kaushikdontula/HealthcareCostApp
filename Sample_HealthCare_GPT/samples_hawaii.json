@@ -1,0 +1,47 @@
+{
+  "healthcare_provider": "Kaiser Foundation Health Plan, Inc., on behalf of the Hawaii Region",
+  "procedures": [
+    {
+      "procedure_name": "Blood Test (Complete Blood Count)",
+      "procedure_code": "85025",
+      "cost": 150,
+      "description": "A blood test used to measure the concentration of different blood cells like red blood cells, white blood cells, and platelets."
+    },
+    {
+      "procedure_name": "Blood Test (Complete Blood Count)",
+      "procedure_code": "85025",
+      "cost": 120,
+      "description": "A blood test used to measure the concentration of different blood cells like red blood cells, white blood cells, and platelets."
+    },
+    {
+      "procedure_name": "MRI of the Brain",
+      "procedure_code": "70551",
+      "cost": 1200,
+      "description": "Magnetic Resonance Imaging (MRI) scan of the brain, which provides detailed images of the brain's structure and can detect abnormalities such as tumors or stroke."
+    },
+    {
+      "procedure_name": "MRI of the Brain",
+      "procedure_code": "70551",
+      "cost": 1100,
+      "description": "Magnetic Resonance Imaging (MRI) scan of the brain, which provides detailed images of the brain's structure and can detect abnormalities such as tumors or stroke."
+    },
+    {
+      "procedure_name": "Colonoscopy",
+      "procedure_code": "45378",
+      "cost": 3000,
+      "description": "A procedure in which a long, flexible tube is inserted into the colon to examine for any abnormalities like polyps or cancer."
+    },
+    {
+      "procedure_name": "Cataract Surgery (Phacoemulsification)",
+      "procedure_code": "66984",
+      "cost": 2500,
+      "description": "A surgical procedure to remove a cataract (clouding of the lens) and replace it with an artificial intraocular lens."
+    },
+    {
+      "procedure_name": "Hip Replacement Surgery",
+      "procedure_code": "27130",
+      "cost": 30000,
+      "description": "Surgical procedure in which a damaged or worn-out hip joint is replaced with a prosthetic implant."
+    }
+  ]
+}

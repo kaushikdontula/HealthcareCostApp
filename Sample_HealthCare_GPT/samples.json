@@ -1,0 +1,35 @@
+[
+    {
+      "provider": "Kaiser Permanente",
+      "procedure": "tooth implant",
+      "average_cost": 6000,
+      "min_cost": 5000,
+      "max_cost": 7000,
+      "currency": "USD"
+    },
+    {
+      "provider": "Blue Cross",
+      "procedure": "tooth implant",
+      "average_cost": 5500,
+      "min_cost": 4500,
+      "max_cost": 6500,
+      "currency": "USD"
+    },
+    {
+      "provider": "Kaiser Permanente",
+      "procedure": "knee replacement",
+      "average_cost": 20000,
+      "min_cost": 18000,
+      "max_cost": 22000,
+      "currency": "USD"
+    },
+    {
+        "provider": "Kaiser Permanente",
+        "procedure": "tooth implant",
+        "average_cost": 9000,
+        "min_cost": 8000,
+        "max_cost": 7000,
+        "currency": "USD"
+    }
+  ]
+  
