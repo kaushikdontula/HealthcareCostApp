@@ -41,7 +41,7 @@ from  models.MrfData import Provider
 from decimal import Decimal
  
 # file_path = "./mrf_files/2024-10-01_NEW_NW-COMMERCIAL-01_in-network-rates.json"
-file_path = "regional_mrf_files/2024-11-01_NEW_NW-COMMERCIAL-01_in-network-rates.json"
+file_path = "./mrf_files/2024-10-01_NEW_NW-COMMERCIAL-01_in-network-rates.json"
 # add try accept clause for errors
 # try utf8, then latin1, etc (check whatever byte code windows uses)
 # could also try to replace line endings with linux ones
@@ -54,56 +54,32 @@ def main():
     # insert Service class objects into DB in Service and Pricing table
 
     provider_data = get_array_from_key(file_path, "provider_references", 2)
-    provider_data_objects(provider_data)
+    objects = provider_data_objects(provider_data)
     # insert_into_database(service_arr)
 
 
 
 def provider_data_objects(data):
     obj_arr = []
-    # print(data)
     for i in data:
-    #     print(i["name"])
-    #     print(i["billing_code"])
         provider_group_id = i["provider_group_id"]
 
         provider_group = i["provider_groups"]
-    #     print(f"number of prices {len(rates)}")
-    #     print("***Example Rates***")
-    #     rate_num = 1
         for j in provider_group:
                 providers = j
                 npi_arr = []
-                tin = None#{"type": None, "value": None}
-                # for k in providers: #type -> rate -> date -> class
-               
                 tin = int(providers["tin"]["value"])
                 for val in providers["npi"]:
                     npi_arr.append(val)
                     obj_arr.append(Provider(provider_group_id, val, tin))
-
-    
-                # print(f"provider_group_id: {provder_group_id}")
-                # # print(f"pr")
-                # print(f"npi: {npi_arr}") 
-                # print(f"tin: {tin}")
-
-        for provider in obj_arr:
-            provider.print_provider()
-                # rate_num += 1
-                # Mrf_obj = Service(i["name"], i["billing_code"], providers, neg_rate_arr[0], neg_rate_arr[1], neg_rate_arr[2], neg_rate_arr[3])
-                # Mrf_obj.print_mrf()
-                # obj_arr.append(Mrf_obj)
+    return obj_arr
+        
 
 
 def service_data_to_objects(data):
     obj_arr = []
     for i in data:
-        print(i["name"])
-        print(i["billing_code"])
         rates = i["negotiated_rates"]
-        print(f"number of prices {len(rates)}")
-        print("***Example Rates***")
         rate_num = 1
         for j in rates:
                 providers = j["provider_references"]
@@ -113,9 +89,8 @@ def service_data_to_objects(data):
                         neg_rate_arr.append(val)
                 rate_num += 1
                 Mrf_obj = Service(i["name"], i["billing_code"], providers, neg_rate_arr[0], neg_rate_arr[1], neg_rate_arr[2], neg_rate_arr[3])
-                Mrf_obj.print_mrf()
                 obj_arr.append(Mrf_obj)
-
+    return obj_arr
 
 
     # class DecimalEncoder(json.JSONEncoder):
