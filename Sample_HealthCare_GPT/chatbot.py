@@ -127,7 +127,6 @@ def load_mrf_file(file_path):
     
 
 
-
     
 def extract_billing_code(assistant_message):
     # Check if the key phrase is present in the message
