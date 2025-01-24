@@ -6,17 +6,21 @@ from pathlib import Path
 from datetime import datetime
 import os
 
+
 from data_processing.Models.MrfDbModels import Provider, Pricing, Service, ProviderDetails, Company, Plan, ProviderService
 
 BASE_DIR = Path(__file__).parent.parent.parent
 DB_PATH = Path(__file__).parent.parent.parent / 'database'
 
 class BaseRepo:
-    def __init__(self, db_name:str = "healthcare_pricing.db"):
+    def __init__(self, db_name:str = None):
         """
         Base repo that manages connections to DB
         :param db_name: name of the .db file to use
         """
+        if db_name == None:
+            db_name = "healthcare_pricing.db"
+
         self.db_file = f"{DB_PATH.absolute()}/{db_name}"
         if not os.path.exists(self.db_file):
             raise FileNotFoundError(f"{self.db_file} Does not exist")
