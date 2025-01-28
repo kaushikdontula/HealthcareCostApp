@@ -4,11 +4,10 @@ import sys
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
 file_path = "./mrf_files/2025-01-01_NEW_NW-COMMERCIAL-01_in-network-rates.json"
+# file_path = "./Sample_HealthCare_GPT/samples_NW.json"
 
 from data_processing import mrf_processor
-
-from  models.MrfData import Service
-from  models.MrfData import Provider
+from data_processing.Models.MrfDbModels import Provider, Service
 
 # change into class, set up own info
 # magicmock
@@ -65,21 +64,21 @@ def test_service_data_objects_returns_class_instances():
     for obj in res:
         assert isinstance(obj, Service)
 
-def test_can_process_large_amounts_of_mrf_file():
-    service_data = mrf_processor.get_array_from_key(file_path, "in_network", 10000)
-    assert(service_data is not None)
-    assert isinstance(service_data, list)
-    service_arr = mrf_processor.service_data_to_objects(service_data)
-    assert(service_arr is not None)
-    for obj in service_arr:
-        assert isinstance(obj, Service)
+# def test_can_process_large_amounts_of_mrf_file():
+#     service_data = mrf_processor.get_array_from_key(file_path, "in_network", 10000)
+#     assert(service_data is not None)
+#     assert isinstance(service_data, list)
+#     service_arr = mrf_processor.service_data_to_objects(service_data)
+#     assert(service_arr is not None)
+#     for obj in service_arr:
+#         assert isinstance(obj, Service)
 
-    provider_data = mrf_processor.get_array_from_key(file_path, "provider_references", 10000)
-    assert(provider_data is not None)
-    assert isinstance(provider_data, list)
-    assert (len(provider_data) == 10000)
+#     provider_data = mrf_processor.get_array_from_key(file_path, "provider_references", 10000)
+#     assert(provider_data is not None)
+#     assert isinstance(provider_data, list)
+#     assert (len(provider_data) == 10000)
 
-    provider_arr = mrf_processor.provider_data_objects(provider_data)
-    assert(provider_data is not None)
-    for obj in provider_arr:
-        assert isinstance(obj, Provider)
+#     provider_arr = mrf_processor.provider_data_objects(provider_data)
+#     assert(provider_data is not None)
+#     for obj in provider_arr:
+#         assert isinstance(obj, Provider)

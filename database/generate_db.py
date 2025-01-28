@@ -9,7 +9,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, clear_mappers, declarative_base
 
 
-engine = create_engine('sqlite:///mrf_database_test.db')  
+engine = create_engine('sqlite:///database/healthcare_pricing.db')  
 
 Base.metadata.create_all(engine)
 

@@ -9,7 +9,7 @@ from dataclasses import dataclass
 
 # in network
 
-class Service:
+class ServiceObj:
 
     # try accept for different data and use static typing for data types
     # pydantic?
@@ -43,7 +43,7 @@ class Service:
         print(f"Billing Class: {self.billing_class}")
 
 
-class Provider:
+class ProviderObj:
     
     provider_group_id: int
     npi: int
