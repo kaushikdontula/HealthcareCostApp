@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from .models import PricingRecord  # Import the model to serialize
+from .models import Services
 
-class PricingRecordSerializer(serializers.ModelSerializer):
+class ServicesSerializer(serializers.ModelSerializer):
     class Meta:
-        model = PricingRecord
-        fields = '__all__' 
+        model = Services
+        fields = ['service_id', 'name', 'description', 'category']
