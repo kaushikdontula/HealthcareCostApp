@@ -81,20 +81,20 @@ export default function ChatComponent() {
 
             {/* Main Chat Area */}
             <div
-                className={`flex-1 bg-gradient-to-r from-teal-700 to-blue-800 p-6 transition-all duration-300 ${sidebarOpen ? 'ml-64' : ''}`}
+                className={`flex-1 bg-white rounded-lg p-6 transition-all duration-300 ${sidebarOpen ? 'ml-64' : ''}`}
             >
                 {/* Sidebar Toggle Button */}
                 {!sidebarOpen && (
                     <button
                         onClick={toggleSidebar}
-                        className="absolute top-4 left-4 text-white p-2 rounded-md focus:outline-none z-20"
+                        className="absolute top-4 left-4 text-gray-900 p-2 rounded-md focus:outline-none z-20"
                     >
                         <FiMenu size={24} />
                     </button>
                 )}
 
                 {/* Chat Header */}
-                <h2 className="text-2xl font-bold text-white mb-4 text-center w-full mt-15">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4 text-center w-full mt-15">
                     Healthcare Cost Assistant
                 </h2>
 

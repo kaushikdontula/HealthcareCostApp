@@ -2,6 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body {
-    overflow: hidden; /* Prevent scrolling for now, will probably need to update this later */
+/* In your global CSS or the component's style */
+.full-screen-section {
+   height: 100vh;
+   scroll-snap-align: start;
+}
+
+html {
+   scroll-behavior: smooth; /* Optional: for smooth scrolling between sections */
+}
+
+body {
+   margin: 0;
+   padding: 0;
+   overflow-y: scroll; /* Ensure scrolling is enabled */
+   scroll-snap-type: y mandatory; /* Enable vertical snapping */
 }
