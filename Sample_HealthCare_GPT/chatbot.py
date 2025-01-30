@@ -174,6 +174,7 @@ def main():
                 # "If a user mentions a procedure, provide the corresponding MS-DRG code. "
                 # "Ask follow-up questions if needed, and ensure to extract and return the billing code for the procedure mentioned."
                 "You have knowledge of all 998 MS-DRG codes, the user will tell you about a procedure. If there are multiple possible MS-DRG codes it could be, you should list out all possible MS-DRG codes and ask the user to clarify if needed. If there is only one possibility, still ask the user to confirm"
+                "If the user does not know which MS-DRG code correlates best with their procedure, give them descriptions along with the codes to help narrow down"
                 "Once you have finalized which MS-DRG code it is from the user with certainty, say the words 'Analyzing cost data for MS-DRG code ' "
             )
         }
@@ -214,8 +215,27 @@ def main():
             min_cost, max_cost = calculate_cost_range(json_data, billing_code)
 
             if avg_price and min_cost and max_cost:
-                print(f"Average Cost for Billing Code {billing_code}: ${avg_price:.2f}\n")
-                print(f"With the minimum payment being ${min_cost} and the maximum payment being ${max_cost}")
+                cost_summary = (
+                    f"For MS-DRG code {billing_code}, the average cost is ${avg_price:.2f}. "
+                    f"The minimum payment observed is ${min_cost:.2f}, and the maximum payment is ${max_cost:.2f}. "
+                    "Let me know if you'd like further details or assistance!"
+                )
+
+                # Add the cost summary to the assistant's messages
+                messages.append({"role": "assistant", "content": cost_summary})
+                
+                # Print the summary for the user
+                print(f"Assistant: {cost_summary}\n")
+                
+                # Update the assistant's context for answering follow-up questions
+                messages.append({
+                    "role": "system",
+                    "content": (
+                        f"You now have access to cost data for Billing Code {billing_code}. "
+                        f"Use the following details to answer user questions: "
+                        f"Average Cost: ${avg_price:.2f}, Minimum Cost: ${min_cost:.2f}, Maximum Cost: ${max_cost:.2f}."
+                    )
+                })
             else:
                 print(f"No valid cost data available for Billing Code {billing_code}.")
 
