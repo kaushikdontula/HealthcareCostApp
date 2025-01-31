@@ -6,74 +6,75 @@ from openai import OpenAI
 import matplotlib.pyplot as plt
 import json
 import plotly.graph_objects as go
+from flask import Flask, render_template, request, jsonify
 
-# Initialize OpenAI client
+# Initialize OpenAI client and flask app
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+app = Flask(__name__)
 
+# def plot_scatter(json_data, billing_code):
+#     # Extract costs and provider names directly within the function
+#     costs = []
+#     Procedure_num = []
 
-def plot_scatter(json_data, billing_code):
-    # Extract costs and provider names directly within the function
-    costs = []
-    Procedure_num = []
+#     for service in json_data['services']:
+#         if service['billingCode'] == billing_code:
+#             for price in service['prices']:
+#                 if price['negotiatedType'] == 'negotiated' and price['negotiatedRate'] > 0:
+#                     costs.append(price['negotiatedRate'])
+#                     Procedure_num.append(price.get('procedureNum', f"Procedure {len(Procedure_num) + 1}"))
 
-    for service in json_data['services']:
-        if service['billingCode'] == billing_code:
-            for price in service['prices']:
-                if price['negotiatedType'] == 'negotiated' and price['negotiatedRate'] > 0:
-                    costs.append(price['negotiatedRate'])
-                    Procedure_num.append(price.get('procedureNum', f"Procedure {len(Procedure_num) + 1}"))
+#     if not costs:
+#         print(f"No cost data available to plot for Billing Code {billing_code}.")
+#         return
 
-    if not costs:
-        print(f"No cost data available to plot for Billing Code {billing_code}.")
-        return
+#     # Create the scatter plot using Plotly Graph Objects
+#     fig = go.Figure()
 
-    # Create the scatter plot using Plotly Graph Objects
-    fig = go.Figure()
+#     # Add scatter points
+#     fig.add_trace(go.Scatter(
+#         x=Procedure_num,
+#         y=costs,
+#         mode='markers',
+#         marker=dict(
+#             size=10,  # Increase marker size
+#             color=costs,  # Color based on costs for a gradient effect
+#             colorscale='Viridis',  # Beautiful color palette
+#             showscale=True,  # Display color scale bar
+#             colorbar=dict(title="Cost ($)", titleside="right")
+#         ),
+#         hovertemplate="<b>Provider:</b> %{x}<br><b>Cost:</b> $%{y}<extra></extra>"
+#     ))
 
-    # Add scatter points
-    fig.add_trace(go.Scatter(
-        x=Procedure_num,
-        y=costs,
-        mode='markers',
-        marker=dict(
-            size=10,  # Increase marker size
-            color=costs,  # Color based on costs for a gradient effect
-            colorscale='Viridis',  # Beautiful color palette
-            showscale=True,  # Display color scale bar
-            colorbar=dict(title="Cost ($)", titleside="right")
-        ),
-        hovertemplate="<b>Provider:</b> %{x}<br><b>Cost:</b> $%{y}<extra></extra>"
-    ))
+#     # Update layout for a clean and professional look
+#     fig.update_layout(
+#         title=dict(
+#             text=f"Scatter Plot of Costs for Billing Code {billing_code}",
+#             font=dict(size=20),
+#             x=0.5,  # Center the title
+#         ),
+#         xaxis=dict(
+#             title="Providers",
+#             titlefont=dict(size=16),
+#             tickangle=45,  # Angled x-axis labels for readability
+#         ),
+#         yaxis=dict(
+#             title="Cost ($)",
+#             titlefont=dict(size=16),
+#             tickformat=".2f",  # Ensure full numbers on the y-axis
+#             gridcolor='lightgray',  # Add light gridlines for clarity
+#             gridwidth=0.5,
+#         ),
+#         plot_bgcolor='white',  # Clean white background
+#         margin=dict(l=50, r=50, t=80, b=100),
+#     )
 
-    # Update layout for a clean and professional look
-    fig.update_layout(
-        title=dict(
-            text=f"Scatter Plot of Costs for Billing Code {billing_code}",
-            font=dict(size=20),
-            x=0.5,  # Center the title
-        ),
-        xaxis=dict(
-            title="Providers",
-            titlefont=dict(size=16),
-            tickangle=45,  # Angled x-axis labels for readability
-        ),
-        yaxis=dict(
-            title="Cost ($)",
-            titlefont=dict(size=16),
-            tickformat=".2f",  # Ensure full numbers on the y-axis
-            gridcolor='lightgray',  # Add light gridlines for clarity
-            gridwidth=0.5,
-        ),
-        plot_bgcolor='white',  # Clean white background
-        margin=dict(l=50, r=50, t=80, b=100),
-    )
+#     # Add gridlines and additional design elements
+#     fig.update_xaxes(showline=True, linewidth=1, linecolor='black', mirror=True)
+#     fig.update_yaxes(showline=True, linewidth=1, linecolor='black', mirror=True)
 
-    # Add gridlines and additional design elements
-    fig.update_xaxes(showline=True, linewidth=1, linecolor='black', mirror=True)
-    fig.update_yaxes(showline=True, linewidth=1, linecolor='black', mirror=True)
-
-    # Show the interactive plot
-    fig.show()
+#     # Show the interactive plot
+#     fig.show()
 
 
 
@@ -154,93 +155,142 @@ def respond_to_query(messages):
     # gets content of message to display
     return response.choices[0].message.content
 
+# Initialize conversation history
+messages = [
+    {
+        "role": "system",
+        "content": (
+            "You are an AI healthcare assistant. You have access to cost data for various procedures from different providers. "
+            "You have knowledge of all 998 MS-DRG codes, the user will tell you about a procedure. If there are multiple possible MS-DRG codes it could be, you should list out all possible MS-DRG codes and ask the user to clarify if needed. If there is only one possibility, still ask the user to confirm"
+            "If the user does not know which MS-DRG code correlates best with their procedure, give them descriptions along with the codes to help narrow down"
+            "Once you have finalized which MS-DRG code it is from the user with certainty, say the words 'Analyzing cost data for MS-DRG code ' "
+        )
+    }
+]
 
+@app.route('/')
+def home():
+    return render_template('index.html')
 
-
-
-def main():
-
-    # load json data
-    json_data = load_mrf_file("samples_NW.json")
-    # print(json_data)
-
-    # Initialize conversation history
-    messages = [
-        {
-            "role": "system",
-            "content": (
-                "You are an AI healthcare assistant. You have access to cost data for various procedures from different providers. "
-                # "Help users understand the costs of healthcare procedures and their MS-DRG codes. "
-                # "If a user mentions a procedure, provide the corresponding MS-DRG code. "
-                # "Ask follow-up questions if needed, and ensure to extract and return the billing code for the procedure mentioned."
-                "You have knowledge of all 998 MS-DRG codes, the user will tell you about a procedure. If there are multiple possible MS-DRG codes it could be, you should list out all possible MS-DRG codes and ask the user to clarify if needed. If there is only one possibility, still ask the user to confirm"
-                "If the user does not know which MS-DRG code correlates best with their procedure, give them descriptions along with the codes to help narrow down"
-                "Once you have finalized which MS-DRG code it is from the user with certainty, say the words 'Analyzing cost data for MS-DRG code ' "
-            )
-        }
-    ]
-
-    print("Welcome to the Healthcare Cost Assistant! Please tell us about an upcoming procedure that you may have questions about or would like to understand the costs of. \n\n At any time type 'exit' to end the chat.\n")
+@app.route('/chat', methods=['POST'])
+def chat():
+    user_input = request.form['user_input']
     
-    while True:
-        # Get user input
-        user_input = input("You: ")
+    # Add user input to conversation history
+    messages.append({"role": "user", "content": user_input})
+    
+    # Generate assistants response
+    assistant_message = respond_to_query(messages)
+    
+    # Extract billing code from the assistant's response
+    billing_code = extract_billing_code(assistant_message)
+    
+    if billing_code:
+        json_data = load_mrf_file("samples_NW.json")
+        avg_price = calculate_average_cost(json_data, billing_code)
+        min_cost, max_cost = calculate_cost_range(json_data, billing_code)
         
-        # Exit the loop if the user types 'exit'
-        if user_input.lower() == "exit":
-            print("Goodbye!")
-            break
-        
-        # Add user input to the conversation history
-        messages.append({"role": "user", "content": user_input})
+        if avg_price:
+            cost_summary = (
+                f"For MS-DRG code {billing_code}, the average cost is ${avg_price:.2f}. "
+                f"The minimum payment observed is ${min_cost:.2f}, and the maximum payment is ${max_cost:.2f}. "
+                "Let me know if you'd like further details or assistance!"
+            )
+            messages.append({"role": "assistant", "content": cost_summary})
+            assistant_message += f"\n{cost_summary}"
+    
+    return jsonify({'assistant_message': assistant_message})
 
-        # Generate a response
-        assistant_message = respond_to_query(messages)
+if __name__ == '__main__':
+    app.run(debug=True)
 
-        # extracting the MS-DRG code from the assistant's response
-        billing_code = extract_billing_code(assistant_message)
-        # print(billing_code)
-        
-        # Add the assistant's response to the conversation history
-        messages.append({"role": "assistant", "content": assistant_message})
-        
-        # Display the assistant's response
-        print(f"Assistant: {assistant_message}\n")
 
-        if billing_code:
-            print(f"Extracted Billing Code: {billing_code}")
+
+
+
+
+# terminal chatbot interface
+
+# def main():
+
+#     # load json data
+#     json_data = load_mrf_file("samples_NW.json")
+#     # print(json_data)
+
+#     # Initialize conversation history
+#     messages = [
+#         {
+#             "role": "system",
+#             "content": (
+#                 "You are an AI healthcare assistant. You have access to cost data for various procedures from different providers. "
+#                 "You have knowledge of all 998 MS-DRG codes, the user will tell you about a procedure. If there are multiple possible MS-DRG codes it could be, you should list out all possible MS-DRG codes and ask the user to clarify if needed. If there is only one possibility, still ask the user to confirm"
+#                 "If the user does not know which MS-DRG code correlates best with their procedure, give them descriptions along with the codes to help narrow down"
+#                 "Once you have finalized which MS-DRG code it is from the user with certainty, say the words 'Analyzing cost data for MS-DRG code ' "
+#             )
+#         }
+#     ]
+
+#     print("Welcome to the Healthcare Cost Assistant! Please tell us about an upcoming procedure that you may have questions about or would like to understand the costs of. \n\n At any time type 'exit' to end the chat.\n")
+    
+#     while True:
+#         # Get user input
+#         user_input = input("You: ")
+        
+#         # Exit the loop if the user types 'exit'
+#         if user_input.lower() == "exit":
+#             print("Goodbye!")
+#             break
+        
+#         # Add user input to the conversation history
+#         messages.append({"role": "user", "content": user_input})
+
+#         # Generate a response
+#         assistant_message = respond_to_query(messages)
+
+#         # extracting the MS-DRG code from the assistant's response
+#         billing_code = extract_billing_code(assistant_message)
+#         # print(billing_code)
+        
+#         # Add the assistant's response to the conversation history
+#         messages.append({"role": "assistant", "content": assistant_message})
+        
+#         # Display the assistant's response
+#         print(f"Assistant: {assistant_message}\n")
+
+#         if billing_code:
+#             print(f"Extracted Billing Code: {billing_code}")
             
-            # Calculate the average cost for the billing code
-            avg_price = calculate_average_cost(json_data, billing_code)
-            min_cost, max_cost = calculate_cost_range(json_data, billing_code)
+#             # Calculate the average cost for the billing code
+#             avg_price = calculate_average_cost(json_data, billing_code)
+#             min_cost, max_cost = calculate_cost_range(json_data, billing_code)
 
-            if avg_price and min_cost and max_cost:
-                cost_summary = (
-                    f"For MS-DRG code {billing_code}, the average cost is ${avg_price:.2f}. "
-                    f"The minimum payment observed is ${min_cost:.2f}, and the maximum payment is ${max_cost:.2f}. "
-                    "Let me know if you'd like further details or assistance!"
-                )
+#             if avg_price and min_cost and max_cost:
+#                 cost_summary = (
+#                     f"For MS-DRG code {billing_code}, the average cost is ${avg_price:.2f}. "
+#                     f"The minimum payment observed is ${min_cost:.2f}, and the maximum payment is ${max_cost:.2f}. "
+#                     "Let me know if you'd like further details or assistance!"
+#                 )
 
-                # Add the cost summary to the assistant's messages
-                messages.append({"role": "assistant", "content": cost_summary})
+#                 # Add the cost summary to the assistant's messages
+#                 messages.append({"role": "assistant", "content": cost_summary})
                 
-                # Print the summary for the user
-                print(f"Assistant: {cost_summary}\n")
+#                 # Print the summary for the user
+#                 print(f"Assistant: {cost_summary}\n")
                 
-                # Update the assistant's context for answering follow-up questions
-                messages.append({
-                    "role": "system",
-                    "content": (
-                        f"You now have access to cost data for Billing Code {billing_code}. "
-                        f"Use the following details to answer user questions: "
-                        f"Average Cost: ${avg_price:.2f}, Minimum Cost: ${min_cost:.2f}, Maximum Cost: ${max_cost:.2f}."
-                    )
-                })
-            else:
-                print(f"No valid cost data available for Billing Code {billing_code}.")
+#                 # Update the assistant's context for answering follow-up questions
+#                 messages.append({
+#                     "role": "system",
+#                     "content": (
+#                         f"You now have access to cost data for Billing Code {billing_code}. "
+#                         f"Use the following details to answer user questions: "
+#                         f"Average Cost: ${avg_price:.2f}, Minimum Cost: ${min_cost:.2f}, Maximum Cost: ${max_cost:.2f}."
+#                     )
+#                 })
+#             else:
+#                 print(f"No valid cost data available for Billing Code {billing_code}.")
 
-            # Generate a box-and-whisker plot for the costs
-            plot_scatter(json_data, billing_code)
+#             # Generate a box-and-whisker plot for the costs
+#             # plot_scatter(json_data, billing_code)
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
