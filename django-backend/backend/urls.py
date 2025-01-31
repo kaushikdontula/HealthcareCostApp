@@ -18,9 +18,11 @@ from django.contrib import admin
 from django.urls import path
 from . import views
 from .views import ServicesList
+from .views import PricingList
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/healthcheck/', views.health_check, name='health-check'),
     path('api/services/', ServicesList.as_view(), name='get_services'),
+    path('api/pricing/', PricingList.as_view(), name='get_pricing'),
 ]

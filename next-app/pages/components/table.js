@@ -1,60 +1,67 @@
-// Placeholder until full database is implemented... 
 import React, { useState } from 'react';
 
 export default function DataTable({ data }) {
-    // State for the search term
-    const [searchTerm, setSearchTerm] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
 
-    // Filter the data based on the search term
-    const filteredData = data.filter((item) =>
-        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.price.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.provider.toLowerCase().includes(searchTerm.toLowerCase())  // Include provider in search
-    );
+    // Filter data based on search query
+    const filteredData = data.filter((pricingItem) => {
+        const lowercasedQuery = searchQuery.toLowerCase();
+        return (
+            String(pricingItem.id).toLowerCase().includes(lowercasedQuery) ||
+            String(pricingItem.rate).toLowerCase().includes(lowercasedQuery) ||
+            String(pricingItem.type).toLowerCase().includes(lowercasedQuery) ||
+            String(pricingItem.provider).toLowerCase().includes(lowercasedQuery) ||
+            String(pricingItem.price).toLowerCase().includes(lowercasedQuery) ||
+            String(pricingItem.expiration).toLowerCase().includes(lowercasedQuery)
+        );
+    });
 
     return (
-        <section id="data" className="w-full max-w-6xl mx-auto bg-white rounded-lg shadow-xl p-8">
-            {/* Search Bar */}
-            <div className="mb-6">
+        <section id="data" className="w-full max-w-7xl mx-auto bg-white rounded-2xl shadow-xl p-8">
+            {/* Header Section */}
+            <div className="mb-8 flex justify-between items-center space-x-6">
+                <h2 className="text-4xl font-semibold text-gray-900">Healthcare Pricing Data</h2>
+
+                {/* Search Bar */}
                 <input
                     type="text"
-                    placeholder="Search Healthcare Services..."
-                    className="w-full p-4 border border-gray-300 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-500"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Search Healthcare Pricing Data..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)} // Update search query state
+                    className="p-4 border-2 border-teal-300 rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-700 w-1/3"
                 />
             </div>
 
-            <h2 className="text-3xl font-bold text-center text-gray-900 mb-6">Healthcare Pricing Data</h2>
-            <table className="w-full table-auto border-collapse">
+            <table className="w-full table-auto border-collapse rounded-2xl overflow-hidden">
                 <thead>
-                    <tr className="bg-teal-500 text-white">
-                        <th className="px-6 py-3 text-left">ID</th>
-                        <th className="px-6 py-3 text-left">Healthcare Service</th>
-                                                <th className="px-6 py-3 text-left">Healthcare Provider</th> 
-                        <th className="px-6 py-3 text-left">Price</th>
-                        <th className="px-6 py-3 text-left">Description</th>
+                    <tr className="bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 text-white text-left">
+                        <th className="px-6 py-4 text-sm font-medium">Pricing ID</th>
+                        <th className="px-6 py-4 text-sm font-medium">Negotiated Rate</th>
+                        <th className="px-6 py-4 text-sm font-medium">Negotiated Type</th>
+                        <th className="px-6 py-4 text-sm font-medium">Billing Class</th>
+                        <th className="px-6 py-4 text-sm font-medium">Price</th>
+                        <th className="px-6 py-4 text-sm font-medium">Expiration Date</th>
                     </tr>
                 </thead>
                 <tbody>
                     {filteredData.length === 0 ? (
                         <tr>
-                            <td colSpan="5" className="text-center py-4 text-gray-500">
+                            <td colSpan="6" className="text-center py-6 text-gray-500 font-semibold">
                                 No data available
                             </td>
                         </tr>
                     ) : (
-                        filteredData.map((item, index) => (
+                        filteredData.map((pricingItem, index) => (
                             <tr
-                                key={item.id}
-                                className={`border-b ${index % 2 === 0 ? 'bg-gray-100' : 'bg-white'} hover:bg-teal-100`}
+                                key={pricingItem.id}
+                                className={`border-b border-gray-200 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-teal-50 transform transition-all duration-300`}
                             >
-                                <td className="px-6 py-3 text-left text-gray-900">{item.id}</td>
-                                <td className="px-6 py-3 text-gray-900">{item.name}</td>
-                                <td className="px-6 py-3 text-gray-900">{item.provider}</td>
-                                <td className="px-6 py-3 text-gray-900">{item.price}</td>
-                                <td className="px-6 py-3 text-gray-900">{item.description}</td>
+                                <td className="px-6 py-4 text-sm text-gray-800">{pricingItem.id}</td>
+                                <td className="px-6 py-4 text-sm text-gray-800">{pricingItem.rate}</td>
+                                <td className="px-6 py-4 text-sm text-gray-800">{pricingItem.type}</td>
+                                <td className="px-6 py-4 text-sm text-gray-800">{pricingItem.provider}</td>
+                                <td className="px-6 py-4 text-sm text-gray-800">{pricingItem.price}</td>
+                                <td className="px-6 py-4 text-sm text-gray-800">{pricingItem.expiration}</td>
                             </tr>
                         ))
                     )}

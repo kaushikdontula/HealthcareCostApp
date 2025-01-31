@@ -1,16 +1,41 @@
+import { useState, useEffect } from 'react';
 import Navbar from './components/navbar';
 import ChatComponent from './components/chat';  
 import Footer from './components/footer';
 import DataTable from './components/table';
 
 export default function Home() {
-    // Sample data for the table - Change with actual data later
-    const tableData = [
-        { id: 1, name: 'Healthcare Service 1', provider: 'Provider A', price: '$100', description: 'Basic service' },
-        { id: 2, name: 'Healthcare Service 2',  provider: 'Provider B', price: '$200', description: 'Advanced service' },
-        { id: 3, name: 'Healthcare Service 3', provider: 'Provider C', price: '$150', description: 'Standard service' },
-        { id: 4, name: 'Healthcare Service 4', provider: 'Provider D',price: '$300', description: 'Premium service' },
-    ];
+    // State to store pricing data
+    const [tableData, setTableData] = useState([]);
+
+    useEffect(() => {
+        // Fetch pricing data from API
+        const fetchPricingData = async () => {
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/pricing/');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch pricing data');
+                }
+                const data = await response.json();
+
+                // Transform API data to match table format
+                const formattedData = data.map(pricingItem => ({
+                    id: pricingItem.pricing_id,
+                    rate: `$${pricingItem.negotiated_rate}`,
+                    type: pricingItem.negotiated_type, 
+                    provider: pricingItem.billing_class || 'Unknown', 
+                    price: `$${pricingItem.price}`, 
+                    expiration: pricingItem.expiration_date, 
+                }));                             
+
+                setTableData(formattedData);
+            } catch (error) {
+                console.error('Error fetching pricing data:', error);
+            }
+        };
+
+        fetchPricingData();
+    }, []);
 
     return (
         <div className="bg-gradient-to-r from-teal-700 to-blue-800 min-h-screen text-white">

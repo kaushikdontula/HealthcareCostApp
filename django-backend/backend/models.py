@@ -13,3 +13,17 @@ class Services(models.Model):
 
     def __str__(self):
         return self.name
+
+class Pricing(models.Model):
+    pricing_id = models.AutoField(primary_key=True)
+    negotiated_rate = models.FloatField()
+    negotiated_type = models.CharField(max_length=255)
+    billing_class = models.CharField(max_length=255, null=True, blank=True)
+    price = models.FloatField()
+    expiration_date = models.DateField(null=True, blank=True)
+
+    class Meta:
+        db_table = 'Pricing'
+
+    def __str__(self):
+        return f"Pricing ID: {self.pricing_id} - Price: {self.price}"

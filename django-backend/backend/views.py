@@ -3,7 +3,9 @@ from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .models import Services
+from .models import Pricing
 from .serializers import ServicesSerializer
+from .serializers import PricingSerializer
 from rest_framework.views import APIView
 
 def health_check(request):
@@ -15,3 +17,9 @@ class ServicesList(APIView):  # Inherit from APIView
         services = Services.objects.all()  # Query all services from the database
         serializer = ServicesSerializer(services, many=True)  # Serialize the data
         return Response(serializer.data)  # Return the data in the response
+
+class PricingList(APIView):  
+    def get(self, request):  
+        pricing = Pricing.objects.all()  # Query all pricing data from the database
+        serializer = PricingSerializer(pricing, many=True)  # Serialize the data
+        return Response(serializer.data)  # Return the serialized data as a response
