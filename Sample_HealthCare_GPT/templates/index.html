@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare Cost Assistant</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .chat-container {
+            width: 100%;
+            max-width: 600px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .chat-box {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .chat-box div {
+            margin-bottom: 10px;
+        }
+        .chat-box .user {
+            text-align: right;
+            background-color: #e1f5fe;
+            border-radius: 5px;
+            padding: 5px;
+        }
+        .chat-box .assistant {
+            text-align: left;
+            background-color: #f1f1f1;
+            border-radius: 5px;
+            padding: 5px;
+        }
+        input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <h2>Healthcare Cost Assistant</h2>
+    <div class="chat-box" id="chat-box">
+        <div class="assistant">Assistant: Hello! How can I assist you today?</div>
+    </div>
+    <input type="text" id="user-input" placeholder="Type your question here..." />
+    <button onclick="sendMessage()">Send</button>
+</div>
+
+<script>
+    function sendMessage() {
+        const userInput = document.getElementById("user-input").value;
+        if (!userInput) return;
+
+        // Display user's message in chat box
+        const chatBox = document.getElementById("chat-box");
+        const userMessage = document.createElement("div");
+        userMessage.classList.add("user");
+        userMessage.innerText = "You: " + userInput;
+        chatBox.appendChild(userMessage);
+        
+        // Clear the input field
+        document.getElementById("user-input").value = "";
+
+        // Send message to the Flask backend
+        fetch("/chat", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: "user_input=" + encodeURIComponent(userInput)
+        })
+        .then(response => response.json())
+        .then(data => {
+            const assistantMessage = document.createElement("div");
+            assistantMessage.classList.add("assistant");
+            assistantMessage.innerText = "Assistant: " + data.assistant_message;
+            chatBox.appendChild(assistantMessage);
+            chatBox.scrollTop = chatBox.scrollHeight;  // Scroll to the bottom
+        });
+    }
+</script>
+
+</body>
+</html>
