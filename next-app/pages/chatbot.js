@@ -1,4 +1,4 @@
-// // pages/index.js
+// // pages/chatbot.js NOTE: WE can delete this now probably
 // import Navbar from './components/navbar';
 // import ChatComponent from './components/chat'; // Import the ChatComponent
 // import Footer from './components/footer';

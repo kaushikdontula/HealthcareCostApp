@@ -94,7 +94,7 @@ export default function ChatComponent() {
                 )}
 
                 {/* Chat Header */}
-                <h2 className="text-2xl font-bold text-gray-900 mb-4 text-center w-full mt-15">
+                <h2 className="text-4xl font-semibold text-gray-900 text-center">
                     Healthcare Cost Assistant
                 </h2>
 
