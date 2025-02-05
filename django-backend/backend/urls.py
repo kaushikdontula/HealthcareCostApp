@@ -19,10 +19,14 @@ from django.urls import path
 from . import views
 from .views import ServicesList
 from .views import PricingList
+from .views import PlanList
+from chatbot.views import ChatbotView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/healthcheck/', views.health_check, name='health-check'),
     path('api/services/', ServicesList.as_view(), name='get_services'),
     path('api/pricing/', PricingList.as_view(), name='get_pricing'),
+    path('api/plans/', PlanList.as_view(), name='get_plan'),
+    path('api/chat/', ChatbotView.as_view(), name='chatbot'),
 ]
