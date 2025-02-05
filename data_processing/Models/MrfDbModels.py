@@ -10,7 +10,7 @@ Base = declarative_base()
 class Service(Base):
     __tablename__ = 'Services'
 
-    service_id = mapped_column(Integer, primary_key=True, autoincrement=True)
+    service_id = mapped_column(Integer, primary_key=True)
     name = mapped_column(Text, nullable=False)
     description = mapped_column(Text)
     category = mapped_column(Text)

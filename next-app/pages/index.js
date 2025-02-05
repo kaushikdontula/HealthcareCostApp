@@ -2,11 +2,14 @@ import { useState, useEffect } from 'react';
 import Navbar from './components/navbar';
 import ChatComponent from './components/chat';  
 import Footer from './components/footer';
-import DataTable from './components/table';
+import { DataTable, ServiceDataTable } from './components/table';
+
 
 export default function Home() {
     // State to store pricing data
     const [tableData, setTableData] = useState([]);
+    const [serviceData, setServiceData] = useState([]);
+
 
     useEffect(() => {
         // Fetch pricing data from API
@@ -35,6 +38,33 @@ export default function Home() {
         };
 
         fetchPricingData();
+    }, []);
+
+    useEffect(() => {
+        // Fetch pricing data from API
+        const fetchServiceData = async () => {
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/services/');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch pricing data');
+                }
+                const data = await response.json();
+
+                // Transform API data to match table format
+                const formattedData = data.map(service => ({
+                    id: service.service_id,
+                    name: service.name,
+                    description: service.description,
+                    category: service.category,
+                }));                             
+
+                setServiceData(formattedData);
+            } catch (error) {
+                console.error('Error fetching pricing data:', error);
+            }
+        };
+
+        fetchServiceData();
     }, []);
 
     return (
@@ -69,6 +99,10 @@ export default function Home() {
                 {/* Data Table Section */}
                 <section id="data" className="full-screen-section w-full max-w-6xl mx-auto">
                     <DataTable data={tableData} />
+                </section>
+
+                <section id="serviceData" className="full-screen-section w-full max-w-6xl mx-auto">
+                    <ServiceDataTable data={serviceData} />
                 </section>
 
                 {/* Chatbot Section */}
