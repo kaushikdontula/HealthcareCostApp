@@ -84,7 +84,7 @@ body {
    }
 }
 
-@keyframes gradientBG {
+/* @keyframes gradientBG {
    0% { background-position: 0% 50%; }
    50% { background-position: 100% 50%; }
    100% { background-position: 0% 50%; }
@@ -92,5 +92,36 @@ body {
  
  .animated-gradient {
   background-size: 400% 400%;
-  animation: gradientBG 10s ease-in-out infinite;
+  animation: gradientBG 40s ease-in-out infinite;
+ } */
+
+ @keyframes gradientBG {
+   0% { background-position: 0% 50%; }
+   25% { background-position: 33% 50%; }
+   50% { background-position: 66% 50%; }
+   75% { background-position: 100% 50%; }
+   100% { background-position: 0% 50%; }
+}
+
+.animated-gradient {
+  background: linear-gradient(90deg, #dae3eb, #cbe2ff, #e0e4b7); /* Horizontal gradient */
+  background-size: 400% 400%;/* Adjusted to ensure smooth transitions */
+  animation: gradientBG 30s ease-in-out infinite;
+}
+
+/* background: linear-gradient(90deg, #dae3eb, #cbe2ff, #e0e4b7); Horizontal gradient */
+
+
+/* @keyframes gradientBG {
+   0% { background-position: 0% 50%; }
+   25% { background-position: 33% 50%; }
+   50% { background-position: 66% 50%; }
+   75% { background-position: 100% 50%; }
+   100% { background-position: 0% 50%; }
  }
+ 
+ .animated-gradient {
+   background: linear-gradient(180deg, #adcdff, #cce6ff); /* Light grey to greyish blue */
+   /* background-size: 300% 300%; */
+   /* animation: gradientBG 30s ease-in-out infinite;  */
+ /* }  */
