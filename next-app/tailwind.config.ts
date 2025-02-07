@@ -8,9 +8,18 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      keyframes: {
+        "infinite-scroll": {
+          "0%": { transform: "translateX(0)"},
+          "100%": {transform: "translateX(-100%) "}
+        }  
+      },
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+      },
+      animation: {
+        "infinite-scroll": "infinite-scroll 10s linear infinite",
       },
     },
   },
