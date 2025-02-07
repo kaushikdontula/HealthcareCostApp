@@ -1,31 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FiMenu, FiX, FiSend } from 'react-icons/fi';
 
 export default function ChatComponent() {
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
+    const chatEndRef = useRef(null);
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
-    // Health check API
-    const [healthStatus, setHealthStatus] = useState(null);
-    const [error, setError] = useState(null);
 
     useEffect(() => {
-        const fetchHealthCheck = async () => {
-            try {
-                const response = await fetch('http://127.0.0.1:8000/api/healthcheck/');
-                if (!response.ok) {
-                    throw new Error('Failed to fetch health check status');
-                }
-                const data = await response.json();
-                setHealthStatus(data);
-            } catch (err) {
-                setError(err.message);
-            }
-        };
-
-        fetchHealthCheck();
-    }, []);
+        chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messages]);
 
     const handleInputChange = (e) => setInput(e.target.value);
 
@@ -40,13 +25,14 @@ export default function ChatComponent() {
             const response = await fetch('http://127.0.0.1:8000/api/chat/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: input }),
+                body: JSON.stringify({ user_input: input })  // Only send user input
             });
     
             if (!response.ok) throw new Error('Failed to get response from chatbot');
     
             const data = await response.json();
             const botMessage = { text: data.assistant_message, sender: 'bot' };
+    
             setMessages((prevMessages) => [...prevMessages, botMessage]);
     
         } catch (error) {
@@ -66,18 +52,6 @@ export default function ChatComponent() {
         <div className="relative flex">
             {/* Chat Container */}
             <div className={`relative flex shadow-xl flex-col bg-transparent  max-w-[1200px] rounded-xl shadow-xl p-6 border-2 border-gray-700 transition-all duration-300 ease-in-out ${sidebarOpen ? 'w-2/3' : 'w-full'} h-[calc(100vh-15rem)]`}>
-                {/* Health Check Status */}
-                {healthStatus && (
-                    <div className="text-black mb-4">
-                        <h3 className="font-semibold">Health Check Status:</h3>
-                        <p>Status: {healthStatus.status}</p>
-                    </div>
-                )}
-                {error && (
-                    <div className="text-red-500 mb-4">
-                        <p>Error: {error}</p>
-                    </div>
-                )}
     
                 {/* Chat Messages Container */}
                 <div className="flex-1 overflow-y-auto space-y-4 max-h-[70vh]">
