@@ -8,3 +8,5 @@ djangorestframework==3.15.2
 sqlparse==0.5.2
 django-cors-headers
 pytest
+openai
+python-dotenv

@@ -60,9 +60,9 @@ def main():
 
     # Add fake services
     services = [
-        Service(name="General Consultation", description="Standard check-up service", category="General"),
-        Service(name="Emergency Care", description="Critical care for emergencies", category="Emergency"),
-        Service(name="Surgical Services", description="Surgical procedures", category="Specialty"),
+        Service(service_id=1, name="General Consultation", description="Standard check-up service", category="General"),
+        Service(service_id=2,name="Emergency Care", description="Critical care for emergencies", category="Emergency"),
+        Service(service_id=3,name="Surgical Services", description="Surgical procedures", category="Specialty"),
     ]
     for service in services:
         service_repo.add_service(service)

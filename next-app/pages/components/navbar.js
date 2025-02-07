@@ -37,9 +37,9 @@ import { FiChevronRight, FiChevronLeft } from "react-icons/fi"; // Importing arr
 
             {/* Menu Items */}
             {[
-              { name: "AI Assistant", href: "/ai-assistant" },
-              { name: "Map", href: "/map" },
-              { name: "Our Mission", href: "/our-mission" },
+              { name: "AI Assistant", href: "#title" },
+              { name: "Explore", href: "#data" },
+              { name: "Our Mission", href: "#mission_statement" },
             ].map((item) => (
               <motion.div
                 key={item.name}

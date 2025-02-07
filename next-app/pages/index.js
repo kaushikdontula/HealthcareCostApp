@@ -3,10 +3,12 @@ import Navbar from './components/navbar';
 import ChatComponent from './components/chat';
 import Footer from './components/footer';
 import DataTable from './components/table';
+import Plots from './components/explore'
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Home() {
     const [tableData, setTableData] = useState([]);
+    const [serviceData, setServiceData] = useState([]);
     const [selectedId, setSelectedId] = useState(null);
     const [inView, setInView] = useState({});
     const [sidebarOpen, setSidebarOpen] = useState(false); // Track sidebar state
@@ -38,6 +40,33 @@ export default function Home() {
 
         return ref;
     };
+
+    useEffect(() => {
+        // Fetch pricing data from API
+        const fetchServiceData = async () => {
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/services/');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch pricing data');
+                }
+                const data = await response.json();
+
+                // Transform API data to match table format
+                const formattedData = data.map(service => ({
+                    id: service.service_id,
+                    name: service.name,
+                    description: service.description,
+                    category: service.category,
+                }));
+
+                setServiceData(formattedData);
+            } catch (error) {
+                console.error('Error fetching pricing data:', error);
+            }
+        };
+
+        fetchServiceData();
+    }, []);
 
     useEffect(() => {
         const fetchPricingData = async () => {
@@ -116,7 +145,12 @@ export default function Home() {
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: inView.chatbot ? 1 : 0 }} transition={{ duration: 2 }}>
                         <ChatComponent />
                     </motion.div>
-                </section>                
+                </section>
+
+                {/* Data Table Section */}
+                <section id="data" className="full-screen-section w-full max-w-6xl mx-auto">
+                    <DataTable data={tableData} />
+                </section>
                 
                 <section id="mission-statment" className="h-screen flex flex-col">
 
@@ -169,11 +203,6 @@ export default function Home() {
                     </section>
                 </section>
 
-                <section id="data" ref={useInViewObserver("data")} className="h-screen w-full max-w-6xl mx-auto bg-white rounded-xl shadow-lg p-20">
-                    <motion.div initial={{ opacity: 10 }} animate={{ opacity: inView.data ? 1 : 0 }} transition={{ duration: 1 }}>
-                        <DataTable data={tableData} />
-                    </motion.div>
-                </section>
             </main>
             <Footer />
         </div>

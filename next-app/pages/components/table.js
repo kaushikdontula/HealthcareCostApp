@@ -17,7 +17,7 @@ export default function DataTable({ data }) {
     });
 
     return (
-        <section id="data" className="w-full max-w-7xl mx-auto bg-white rounded-2xl shadow-xl p-8">
+        <section id="data" className="w-full mt-40 max-w-7xl mx-auto border-2 border-gray-700 rounded-2xl shadow-xl p-8">
             {/* Header Section */}
             <div className="mb-8 flex justify-between items-center space-x-6">
                 <h2 className="text-4xl font-semibold text-gray-900">Healthcare Pricing Data</h2>
@@ -28,13 +28,13 @@ export default function DataTable({ data }) {
                     placeholder="Search Healthcare Pricing Data..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)} // Update search query state
-                    className="p-4 border-2 border-teal-300 rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-700 w-1/3"
+                    className="p-4 border-2 border-blue-300 rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-700 w-1/3"
                 />
             </div>
 
             <table className="w-full table-auto border-collapse rounded-2xl overflow-hidden">
                 <thead>
-                    <tr className="bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 text-white text-left">
+                    <tr className="bg-gradient-to-r from-gray-400 via-gray-500 to-gray-600 text-white text-left">
                         <th className="px-6 py-4 text-sm font-medium">Pricing ID</th>
                         <th className="px-6 py-4 text-sm font-medium">Negotiated Rate</th>
                         <th className="px-6 py-4 text-sm font-medium">Negotiated Type</th>
@@ -54,7 +54,7 @@ export default function DataTable({ data }) {
                         filteredData.map((pricingItem, index) => (
                             <tr
                                 key={pricingItem.id}
-                                className={`border-b border-gray-200 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-teal-50 transform transition-all duration-300`}
+                                className={`border-b border-gray-200 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50 transform transition-all duration-300`}
                             >
                                 <td className="px-6 py-4 text-sm text-gray-800">{pricingItem.id}</td>
                                 <td className="px-6 py-4 text-sm text-gray-800">{pricingItem.rate}</td>
