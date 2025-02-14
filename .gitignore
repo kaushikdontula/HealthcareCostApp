@@ -5,6 +5,9 @@ __pycache__/
 
 mrf_files/
 regional_mrf_files/
+database/healthcare_pricing.db
+database/populate_log.txt
+
 
 # C extensions
 *.so
