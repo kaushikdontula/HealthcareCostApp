@@ -8,6 +8,7 @@ export default function ChatComponent() {
     const chatContainerRef = useRef(null); // Ref for the chat window container
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [botTyping, setBotTyping] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     // Simulate initial bot message
     useEffect(() => {
@@ -17,15 +18,10 @@ export default function ChatComponent() {
     // Automatically scroll the chat window to the bottom when messages change
     useEffect(() => {
         if (chatContainerRef.current) {
-            const { scrollHeight, clientHeight, scrollTop } = chatContainerRef.current;
-            const isAtBottom = scrollHeight - clientHeight <= scrollTop + 1; // Check if already at the bottom
-
-            // Only scroll if the user is already at the bottom or if the bot is typing
-            if (isAtBottom || botTyping) {
-                chatContainerRef.current.scrollTop = scrollHeight;
-            }
+            chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
         }
-    }, [messages, botTyping]); // Trigger when messages or botTyping changes
+    }, [messages]);
+
 
     // Simulate typing effect for bot messages
     const simulateTypingEffect = (fullText, speed = 15) => {
@@ -57,33 +53,46 @@ export default function ChatComponent() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!input) return;
-
+    
         const userMessage = { text: input, sender: 'user' };
         setMessages((prevMessages) => [...prevMessages, userMessage]);
         setInput('');
-
+        
+        setIsLoading(true);
         setBotTyping(true);
-
+        
+        // Show loading message
+        setMessages((prevMessages) => [
+            ...prevMessages,
+            { text: "Thinking ...", sender: "bot", loading: true }
+        ]);
+    
         try {
             const response = await fetch('http://127.0.0.1:8000/api/chat/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ user_input: input }),
             });
-
+    
             if (!response.ok) throw new Error('Failed to get response from chatbot');
-
+    
             const data = await response.json();
-            simulateTypingEffect(data.assistant_message, 20); // Faster speed for responses
+    
+            // Remove loading message before adding actual response
+            setMessages((prevMessages) => prevMessages.slice(0, -1));
+    
+            simulateTypingEffect(data.assistant_message, 20);
         } catch (error) {
             console.error('Error:', error);
             setMessages((prevMessages) => [
-                ...prevMessages,
+                ...prevMessages.slice(0, -1), // Remove loading message
                 { text: "Error fetching response", sender: "bot" },
             ]);
+        } finally {
+            setIsLoading(false);
             setBotTyping(false);
         }
-    };
+    };    
 
     // Toggle sidebar
     const toggleSidebar = () => {
@@ -102,13 +111,20 @@ export default function ChatComponent() {
                     {messages.map((msg, index) => (
                         <div
                             key={index}
-                            className={`p-4 max-w-xs md:max-w-md shadow-lg transition-all duration-300 rounded-xl ${
+                            className={`p-4 max-w-xs md:max-w-md shadow-lg transition-all duration-300 rounded-xl flex items-center ${
                                 msg.sender === 'user'
                                     ? 'bg-gray-100 text-gray-800 self-end ml-auto rounded-br-none'
                                     : 'bg-gray-600 text-gray-100 self-start rounded-bl-none'
                             }`}
                         >
-                            {msg.text}
+                            {msg.sender === 'bot' && isLoading && msg.loading ? (
+                                <div className="flex items-center space-x-2">
+                                    <div className="w-4 h-4 border-2 border-gray-100 border-t-transparent animate-spin rounded-full"></div>
+                                    <span>{msg.text}</span>
+                                </div>
+                            ) : (
+                                msg.text
+                            )}
                         </div>
                     ))}
                     <div ref={chatEndRef} />
