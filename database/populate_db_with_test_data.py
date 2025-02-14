@@ -4,11 +4,11 @@ import sys
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
 
-from data_processing import mrf_processor
+#from data_processing import mrf_processor
 from  models.MrfData import ServiceObj
 from  models.MrfData import ProviderObj
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, clear_mappers, declarative_base
+#from sqlalchemy import create_engine
+#from sqlalchemy.orm import sessionmaker, clear_mappers, declarative_base
 from data_processing.Models.MrfDbModels import (Provider, Pricing, Service, ProviderDetails, Company, Plan, ProviderService, Base)
 from data_processing.Repos.MrfRepo import ProviderRepo, PricingRepo, ServiceRepo, CompanyRepo, PlanRepo, ProviderDetailsRepo, ProviderServiceRepo
 
@@ -60,9 +60,9 @@ def main():
 
     # Add fake services
     services = [
-        Service(service_id=1, name="General Consultation", description="Standard check-up service", category="General"),
-        Service(service_id=2,name="Emergency Care", description="Critical care for emergencies", category="Emergency"),
-        Service(service_id=3,name="Surgical Services", description="Surgical procedures", category="Specialty"),
+        Service(service_id=612,name="General Consultation", description="Standard check-up service", category="General"),
+        Service(service_id=122,name="Emergency Care", description="Critical care for emergencies", category="Emergency"),
+        Service(service_id=113,name="Surgical Services", description="Surgical procedures", category="Specialty"),
     ]
     for service in services:
         service_repo.add_service(service)

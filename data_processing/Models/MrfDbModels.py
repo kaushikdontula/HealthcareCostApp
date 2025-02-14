@@ -10,10 +10,10 @@ Base = declarative_base()
 class Service(Base):
     __tablename__ = 'Services'
 
-    service_id = mapped_column(Integer, primary_key=True)
-    name = mapped_column(Text, nullable=False)
+    service_id = mapped_column(Integer, primary_key=True, autoincrement=True)
+    cpt_code = mapped_column(Integer, nullable=False)
     description = mapped_column(Text)
-    category = mapped_column(Text)
+    name = mapped_column(Text, nullable=False)
 
     # Relationships
     provider_services = relationship("ProviderService", back_populates="service")
@@ -23,6 +23,7 @@ class Provider(Base):
     __tablename__ = 'Providers'
 
     provider_id = mapped_column(Integer, primary_key=True, autoincrement=True)
+    provider_group_id = mapped_column(Integer, nullable=False)
     name = mapped_column(Text)
     npi = mapped_column(Text)
     tin = mapped_column(Text)
@@ -49,7 +50,6 @@ class Pricing(Base):
     negotiated_rate = mapped_column(Float, nullable=False)
     negotiated_type = mapped_column(Text, nullable=False)
     billing_class = mapped_column(Text)
-    price = mapped_column(Float, nullable=False)
     expiration_date = mapped_column(Date)
 
     # Relationships
@@ -82,9 +82,9 @@ class ProviderService(Base):
 
     provider_service_id = mapped_column(Integer, primary_key=True, autoincrement=True)
     service_id = mapped_column(Integer, ForeignKey('Services.service_id'), nullable=False)
-    provider_id = mapped_column(Integer, ForeignKey('Providers.provider_id'), nullable=False)
+    provider_id = mapped_column(Integer, ForeignKey('Providers.provider_group_id'), nullable=False)
     pricing_id = mapped_column(Integer, ForeignKey('Pricing.pricing_id'), nullable=False)
-    plan_id = mapped_column(Integer, ForeignKey('Plans.plan_id'), nullable=False)
+    plan_id = mapped_column(Integer, ForeignKey('Plans.plan_id'), nullable=True)
 
     # Relationships
     service = relationship("Service", back_populates="provider_services")

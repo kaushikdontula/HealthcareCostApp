@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 
-export default function DataTable({ data }) {
+export function DataTable({ data }) {
     const [searchQuery, setSearchQuery] = useState('');
 
-    // Filter data based on search query
     const filteredData = data.filter((pricingItem) => {
         const lowercasedQuery = searchQuery.toLowerCase();
         return (
@@ -21,7 +20,6 @@ export default function DataTable({ data }) {
             {/* Header Section */}
             <div className="mb-8 flex justify-between items-center space-x-6">
                 <h2 className="text-4xl font-semibold text-gray-900">Healthcare Pricing Data</h2>
-
                 {/* Search Bar */}
                 <input
                     type="text"
