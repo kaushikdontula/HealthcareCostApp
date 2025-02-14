@@ -11,7 +11,7 @@ export default function Home() {
     const [serviceData, setServiceData] = useState([]);
     const [selectedId, setSelectedId] = useState(null);
     const [inView, setInView] = useState({});
-    const [sidebarOpen, setSidebarOpen] = useState(false); // Track sidebar state
+    const [sidebarOpen, setSidebarOpen] = useState(true); // Track sidebar state
 
 
     const useInViewObserver = (id) => {
