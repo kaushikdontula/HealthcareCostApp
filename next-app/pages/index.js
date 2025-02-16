@@ -1,210 +1,154 @@
-import { useState, useEffect, useRef } from 'react';
-import Navbar from './components/navbar';
-import ChatComponent from './components/chat';
-import Footer from './components/footer';
-import DataTable from './components/table';
-import Plots from './components/explore'
-import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from "@clerk/nextjs";
+import { useRouter } from "next/router";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
+import { FaChevronDown } from 'react-icons/fa';
 
-export default function Home() {
-    const [tableData, setTableData] = useState([]);
-    const [serviceData, setServiceData] = useState([]);
-    const [selectedId, setSelectedId] = useState(null);
-    const [inView, setInView] = useState({});
-    const [sidebarOpen, setSidebarOpen] = useState(false); // Track sidebar state
+export const Home = () => {
+  const { isSignedIn } = useAuth();
+  const router = useRouter();
+  const ref = useRef(null);
 
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"]
+  });
 
-    const useInViewObserver = (id) => {
-        const ref = useRef(null);
+  const scale = useTransform(scrollYProgress, [0, 0.5], [0.8, 1.2]);
+  const opacity = useTransform(scrollYProgress, [0, 0.5], [0.6, 1]);
+  const y = useTransform(scrollYProgress, [0, 0.5], [100, 0]);
 
-        useEffect(() => {
-            const observer = new IntersectionObserver(
-                (entries) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            setInView((prev) => ({ ...prev, [id]: true }));
-                        } else {
-                            setInView((prev) => ({ ...prev, [id]: false }));
-                        }
-                    });
-                },
-                { threshold: 0.2 }
-            );
+  const handleNavigation = () => {
+    if (isSignedIn) {
+      router.push("/dashboard");
+    } else {
+      router.push("/sign-in");
+    }
+  };
 
-            if (ref.current) observer.observe(ref.current);
-            
-            return () => {
-                if (ref.current) observer.unobserve(ref.current);
-            };
-        }, [id]);
+  const cardData = [
+    {
+      id: '1',
+      title: 'Empower with Knowledge',
+      description: 'We aim to eliminate the confusion around healthcare pricing by making it easy for anyone to understand.',
+      icon: '💡',
+    },
+    {
+      id: '2',
+      title: 'Shed Light on Healthcare Pricing',
+      description: 'Healthcare pricing in the U.S. is unnecessarily complicated. Were here to show users the magnitude of the problem.',
+      icon: '🔍',
+    },
+    {
+      id: '3',
+      title: 'Comprehensive Data and Analysis',
+      description: 'Our platform provides detailed data analysis and various types of charts that help users compare healthcare prices.',
+      icon: '📊',
+    }
+  ];
 
-        return ref;
-    };
-
-    useEffect(() => {
-        // Fetch pricing data from API
-        const fetchServiceData = async () => {
-            try {
-                const response = await fetch('http://127.0.0.1:8000/api/services/');
-                if (!response.ok) {
-                    throw new Error('Failed to fetch pricing data');
-                }
-                const data = await response.json();
-
-                // Transform API data to match table format
-                const formattedData = data.map(service => ({
-                    id: service.service_id,
-                    name: service.name,
-                    description: service.description,
-                    category: service.category,
-                }));
-
-                setServiceData(formattedData);
-            } catch (error) {
-                console.error('Error fetching pricing data:', error);
-            }
-        };
-
-        fetchServiceData();
-    }, []);
-
-    useEffect(() => {
-        const fetchPricingData = async () => {
-            try {
-                const response = await fetch('http://127.0.0.1:8000/api/pricing/');
-                if (!response.ok) {
-                    throw new Error('Failed to fetch pricing data');
-                }
-                const data = await response.json();
-
-                const formattedData = data.map(pricingItem => ({
-                    id: pricingItem.pricing_id,
-                    rate: `$${pricingItem.negotiated_rate}`,
-                    type: pricingItem.negotiated_type,
-                    provider: pricingItem.billing_class || 'Unknown',
-                    price: `$${pricingItem.price}`,
-                    expiration: pricingItem.expiration_date,
-                }));
-
-                setTableData(formattedData);
-            } catch (error) {
-                console.error('Error fetching pricing data:', error);
-            }
-        };
-
-        fetchPricingData();
-    }, []);
-
-    const cardData = [
-        {
-            id: '1',
-            title: 'Empower with Knowledge',
-            description: 'We aim to eliminate the confusion around healthcare pricing by making it easy for anyone to understand, no matter their technical background. Our AI assistant offers quick, accurate, and easy-to-understand insights specific to each user, ensuring they can make informed decisions without hesitation.',
-            color: 'text-blue-500',
-        },
-        {
-            id: '2',
-            title: 'Shed Light on Healthcare Pricing',
-            description: 'Healthcare pricing in the U.S. is unnecessarily complicated. We’re here to show users the magnitude of the problem and make it easier to navigate. Our goal is to help users better understand the costs of the services they need so they can feel confident, not scared, about their choices.',
-            color: 'text-cyan-500',
-        },
-        {
-            id: '3',
-            title: 'Comprehensive Data and Analysis',
-            description: 'Our platform provides detailed data analysis and various types of charts that help users compare healthcare prices. The interactive map allows them to directly compare prices across different regions, making it easier to understand and analyze healthcare costs from multiple perspectives.',
-            color: 'text-green-500',
-        }
-    ];
-
-    return (
-        <div className="animated-gradient min-h-screen text-black">
-            <Navbar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-            <main className={`flex-grow p-8 lg:px-16 xl:px-32 flex transition-all flex-col space-y-5 ${sidebarOpen ? 'ml-40' : ''}`}>
-                
-                <section id="title" ref={useInViewObserver("title")} className="h-1/5 flex items-center justify-start text-center mt-5 mb-5">
-                    <div className="w-full">
-                        <motion.h1
-                            className="text-5xl font-extrabold text-gray-900"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: inView.title ? 1 : 0 }}
-                            transition={{ duration: 1 }}>
-                            Improving Healthcare Transparency
-                        </motion.h1>
-                        <motion.p
-                            className="mt-4 text-1xl text-gray-900"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: inView.title ? 1 : 0 }}
-                            transition={{ duration: 1 }}>
-                            Bringing transparency to healthcare costs through AI-powered insights and modern data analysis.
-                        </motion.p>
-                    </div>
-                </section>
-
-                {/* Chatbot Section - Adjusted Position */}
-                <section id="chatbot" ref={useInViewObserver("chatbot")} className=" w-full max-w-6xl mx-auto">
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: inView.chatbot ? 1 : 0 }} transition={{ duration: 2 }}>
-                        <ChatComponent />
-                    </motion.div>
-                </section>
-
-                {/* Data Table Section */}
-                <section id="data" className="full-screen-section w-full max-w-6xl mx-auto">
-                    <DataTable data={tableData} />
-                </section>
-                
-                <section id="mission-statment" className="h-screen flex flex-col">
-
-                    <section id="mission_statement" ref={useInViewObserver("mission_statement")} className="h-1/5 flex items-center mt-5 justify-start text-center mb-5">
-                        <div className="w-full">
-                            <motion.h1
-                                className="text-5xl font-extrabold text-gray-900"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: inView.mission_statement ? 1 : 0 }}
-                                transition={{ duration: 1 }}>
-                                Our Mission
-                            </motion.h1>
-                            <motion.p
-                                className="mt-4 text-1xl text-gray-900"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: inView.mission_statement ? 1 : 0 }}
-                                transition={{ duration: 1 }}>
-                                Healthcare pricing can be overwhelmingly complex, but it doesn't have to be. We are committed to making it transparent and easy to understand for everyone.
-                            </motion.p>
-                        </div>
-                    </section>
-
-                    <section id="cards" ref={useInViewObserver("cards")} className="w-full max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                        <AnimatePresence> 
-                            {cardData.map((item) => (
-                                <motion.div
-                                    key={item.id}
-                                    className="relative p-6 bg-white rounded-xl shadow-lg transform hover:scale-105 transition-transform"
-                                    layoutId={`card-${item.id}`}
-                                    onClick={() => setSelectedId(selectedId === item.id ? null : item.id)}
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: inView.cards ? 1 : 0 }}
-                                    transition={{ duration: 1 }}
-                                    exit={{ opacity: 0 }}>
-                                    <motion.div className={`transition-all duration-300 ${selectedId === item.id ? 'p-8' : 'p-6'}`}>
-                                        <h3 className={`text-xl ${item.color} font-semibold mb-4`}>
-                                            {item.title}
-                                        </h3>
-                                        {selectedId === item.id ? (
-                                            <motion.p className="text-gray-700" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                                                {item.description}
-                                            </motion.p>
-                                        ) : (
-                                            <p className="text-gray-700">{item.description}</p>
-                                        )}
-                                    </motion.div>
-                                </motion.div>
-                            ))}
-                        </AnimatePresence>
-                    </section>
-                </section>
-
-            </main>
-            <Footer />
+  return (
+    <div className="relative min-h-screen overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-secondary/30 to-accent/30 opacity-20" />
+      <div className="relative px-6 lg:px-8 flex flex-col min-h-screen">
+        <div className="flex-1 flex items-center justify-center">
+          <div className="max-w-2xl text-center">
+            <motion.h1 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl mb-4"
+            >
+              Welcome to
+              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-primary 80%, via-secondary 90%, to-accent 100%" style={{ backgroundSize: '200% 100%', color: '#000' }}>
+                Healthcare Cost App
+              </span>
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="mt-6 text-xl leading-8 text-gray-600 mb-8"
+            >
+              Understand and compare healthcare costs with ease
+            </motion.p>
+            <motion.button
+              onClick={handleNavigation}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-primary hover:bg-gray-800 text-white font-semibold py-3 px-8 rounded-full shadow-lg transition duration-300 ease-in-out"
+            >
+              Go to Dashboard
+            </motion.button>
+          </div>
         </div>
-    );
-}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.5 }}
+          className="flex justify-center pb-8"
+        >
+          <FaChevronDown className="text-4xl text-gray-600 animate-bounce" />
+        </motion.div>
+      </div>
+
+      <div className="container mx-auto px-4 py-16">
+        <motion.h2 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-3xl font-bold text-center mb-12"
+        >
+          What We Do
+        </motion.h2>
+
+        <motion.div 
+          ref={ref}
+          style={{ scale, opacity, y }}
+          className="mb-24"
+        >
+          <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
+            <div className="p-4 bg-gray-100">
+              <div className="w-3 h-3 rounded-full bg-red-500 inline-block mr-2"></div>
+              <div className="w-3 h-3 rounded-full bg-yellow-500 inline-block mr-2"></div>
+              <div className="w-3 h-3 rounded-full bg-green-500 inline-block"></div>
+            </div>
+            <div className="p-8">
+              {/* Replace this with your actual chatbot interface image */}
+              <div className="bg-gray-200 h-96 flex items-center justify-center text-gray-500">
+                Your Chatbot Interface Image Here
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mt-24">
+          {cardData.map((card, index) => (
+            <motion.div
+              key={card.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              className="bg-white/80 backdrop-blur-sm p-8 rounded-xl shadow-lg transform hover:scale-105 transition-all"
+            >
+              <div className="text-5xl mb-6">{card.icon}</div>
+              <h3 className="text-2xl font-semibold text-gray-800 mb-4">{card.title}</h3>
+              <p className="text-gray-600 text-lg">{card.description}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      <footer className="bg-gray-800 text-white py-8 mt-16">
+        <div className="container mx-auto px-4">
+          <div className="flex justify-between items-center">
+            <p>&copy; 2025 Healthcare Cost App. All rights reserved.</p>
+            <a href="/contact" className="hover:text-primary transition duration-300">Contact Us</a>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default Home;

@@ -1,13 +1,29 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiChevronRight, FiChevronLeft } from "react-icons/fi"; // Importing arrow icons
+import { FiChevronRight, FiChevronLeft } from "react-icons/fi";
+import { useAuth } from '@clerk/nextjs';
+import { useRouter } from 'next/router';
 
-  export default function Navbar({ sidebarOpen, setSidebarOpen }) {
-    const toggleSidebar = () => {
-      setSidebarOpen(!sidebarOpen);
-    };
-    
+export default function Navbar({ sidebarOpen, setSidebarOpen }) {
+  const { signOut } = useAuth();
+  const router = useRouter();
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
+  useEffect(() => {
+    // Open the sidebar when the component mounts
+    setSidebarOpen(true);
+  }, []);
+
+  const handleLogout = () => {
+    signOut(() => {
+      router.push('/'); // Redirect to the intro page after signing out
+    });
+  };
+  
   return (
     <div className="relative">
       {/* Sidebar Toggle Button (Arrow) */}
@@ -34,7 +50,6 @@ import { FiChevronRight, FiChevronLeft } from "react-icons/fi"; // Importing arr
             exit={{ x: -400 }}
             transition={{ type: "transform" }}
           >
-
             {/* Menu Items */}
             {[
               { name: "AI Assistant", href: "#title" },
@@ -57,7 +72,7 @@ import { FiChevronRight, FiChevronLeft } from "react-icons/fi"; // Importing arr
               </motion.div>
             ))}
 
-            {/* Log In & Contact buttons */}
+            {/* Log Out & Contact buttons */}
             <div className="mt-auto space-y-4">
               <motion.div
                 initial={{ x: -40, opacity: 0 }}
@@ -65,12 +80,12 @@ import { FiChevronRight, FiChevronLeft } from "react-icons/fi"; // Importing arr
                 exit={{ x: -40, opacity: 0 }}
                 transition={{ duration: 0.6 }}
               >
-                <Link
-                  href="/login"
+                <button
+                  onClick={handleLogout}
                   className="block w-full px-6 py-3 text-center text-white bg-gray-800 rounded-lg hover:text-orange-400 transition-all duration-300"
                 >
-                  Log In
-                </Link>
+                  Log Out
+                </button>
               </motion.div>
               <motion.div
                 initial={{ x: -40, opacity: 0 }}
@@ -103,52 +118,3 @@ import { FiChevronRight, FiChevronLeft } from "react-icons/fi"; // Importing arr
     </div>
   );
 }
-
-
-
-// Old Nav Bar Code
-// import { useState } from 'react';
-// import Link from 'next/link';
-
-// export default function Navbar() {
-//     const [dropdownOpen, setDropdownOpen] = useState(false);
-
-//     return (
-//         <nav className="bg-[#212f3d] text-white shadow-md sticky top-0 z-50">
-//             <div className="container mx-auto flex items-center justify-between px-4 py-3">
-//                 {/* Logo */}
-//                 <div className="text-xl font-bold">
-//                     <Link href="/" className="hover:text-gray-300">
-//                         Healthcare Cost Transparency App
-//                     </Link>
-//                 </div>
-
-//                 {/* Navigation Links */}
-//                 <ul className="hidden md:flex space-x-6">
-//                     <li><Link href="/" className="hover:text-gray-300">Home</Link></li>
-//                     <li><Link href="#data" className="hover:text-gray-300">Data</Link></li>
-//                     <li><Link href="#chatbot" className="hover:text-gray-300">Healthcare Cost Assistant</Link></li> {/*Change '/' to '#' as you go*/}
-//                     <li className="relative">
-//                         <button 
-//                             className="hover:text-gray-300" 
-//                             onClick={() => setDropdownOpen(!dropdownOpen)}>
-//                             My Account
-//                         </button>
-//                         {dropdownOpen && (
-//                             <ul className="absolute right-0 mt-2 bg-[#2d3a4a] text-sm shadow-md rounded">
-//                                 <li><Link href="/profile" className="block px-4 py-2 hover:bg-gray-700">Profile</Link></li>
-//                                 <li><Link href="/settings" className="block px-4 py-2 hover:bg-gray-700">Settings</Link></li>
-//                                 <li><Link href="/logout" className="block px-4 py-2 hover:bg-gray-700">Logout</Link></li>
-//                             </ul>
-//                         )}
-//                     </li>
-//                 </ul>
-
-//                 {/* Login Button */}
-//                 <Link href="/login" className="bg-[#2F855A] px-4 py-2 rounded hover:bg-[#276749]">
-//                     Login
-//                 </Link>
-//             </div>
-//         </nav>
-//     );
-// }
