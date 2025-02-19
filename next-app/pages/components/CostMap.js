@@ -88,7 +88,7 @@ const CostMap = ({ hospitals }) => {
 
 
   return (
-    <div className="mt-8"> {/* Add margin top */}
+    <section id="map" className="mt-40"> 
       <div className="bg-white p-4 rounded-lg shadow-md flex items-center justify-between mb-4"> {/* Style container */}
         <div>
           <div className="text-gray-600 text-sm">
@@ -109,7 +109,7 @@ const CostMap = ({ hospitals }) => {
         </select>
       </div>
       <div ref={mapContainer} style={{ width: '100%', height: '400px', borderRadius: '1rem', overflow: 'hidden' }} />
-    </div>
+    </section>
   );
 };
 

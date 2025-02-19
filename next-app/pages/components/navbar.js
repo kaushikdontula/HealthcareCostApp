@@ -53,6 +53,7 @@ export default function Navbar({ sidebarOpen, setSidebarOpen }) {
             {/* Menu Items */}
             {[
               { name: "AI Assistant", href: "#title" },
+              { name: "Map", href: "#map" },
               { name: "Explore", href: "#data" },
               { name: "Our Mission", href: "#mission_statement" },
             ].map((item) => (
