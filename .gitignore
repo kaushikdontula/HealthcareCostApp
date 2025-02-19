@@ -169,3 +169,4 @@ cython_debug/
 
 #DB
 database/healthcare_pricing.db
+node_modules/

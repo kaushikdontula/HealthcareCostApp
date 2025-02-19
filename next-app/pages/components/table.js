@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export function DataTable({ data }) {
+export default function DataTable({ data }) {
     const [searchQuery, setSearchQuery] = useState('');
 
     const filteredData = data.filter((pricingItem) => {

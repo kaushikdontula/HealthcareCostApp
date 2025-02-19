@@ -35,7 +35,7 @@ def setup_logging(log_file: str) -> None:
     )
 
 def main():
-    setup_logging("database/populate_log.txt")
+    setup_logging("populate_log.txt")
     logging.info("Starting to populate the database...this will take a while!")
 
     provider_service_arr = []
