@@ -4,8 +4,10 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .models import Services
 from .models import Pricing
+from .models import Plans
 from .serializers import ServicesSerializer
 from .serializers import PricingSerializer
+from .serializers import PlanSerializer
 from rest_framework.views import APIView
 
 def health_check(request):
@@ -22,4 +24,9 @@ class PricingList(APIView):
     def get(self, request):  
         pricing = Pricing.objects.all()  # Query all pricing data from the database
         serializer = PricingSerializer(pricing, many=True)  # Serialize the data
+        return Response(serializer.data)  # Return the serialized data as a response
+class PlanList(APIView):  
+    def get(self, request):  
+        plans = Plans.objects.all()  # Query all pricing data from the database
+        serializer = PlanSerializer(plans, many=True)  # Serialize the data
         return Response(serializer.data)  # Return the serialized data as a response
