@@ -17,16 +17,22 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from . import views
-from .views import ServicesList
-from .views import PricingList
-from .views import PlanList
 from chatbot.views import ChatbotView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    ## Health Check ##
     path('api/healthcheck/', views.health_check, name='health-check'),
-    path('api/services/', ServicesList.as_view(), name='get_services'),
-    path('api/pricing/', PricingList.as_view(), name='get_pricing'),
-    path('api/plans/', PlanList.as_view(), name='get_plan'),
+
+    ## Tables ##
+    path('api/services/', views.ServicesList.as_view(), name='get_services'),
+    path('api/pricing/', views.PricingList.as_view(), name='get_pricing'),
+    path('api/plans/', views.PlanList.as_view(), name='get_plan'),
+    path('api/providers/', views.ProviderList.as_view(), name='get_plan'),
+
+    ## Pricing data for a single CPT code ##
+    path('api/pricedata/<int:code>/', views.PriceDataView.as_view(), name='pricedata'),
+
+    ## Chatbot ##
     path('api/chat/', ChatbotView.as_view(), name='chatbot'),
 ]
