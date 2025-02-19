@@ -286,10 +286,11 @@ export const Home = () => {
                 <div className="mb-6">
                   <div className="mb-4 flex justify-between items-center">
                     <label className="text-lg font-medium">Select medical service:</label>
-                    <div className="text-sm font-semibold text-blue-600 italic">
+                    <div className="bg-green-50 border border-green-200 text-green-700 p-3 rounded-md shadow-sm text-sm">
                       Unlock personalized cost insights with our revolutionary chatbot — available after sign-up!
                     </div>
                   </div>
+
 
                   <div className="flex flex-wrap gap-3">
                     {Object.keys(costData).map(service => (
