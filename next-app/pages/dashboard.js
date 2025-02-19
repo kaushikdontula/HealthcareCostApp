@@ -6,7 +6,10 @@ import ChatComponent from './components/chat';
 import Footer from './components/footer';
 import DataTable from './components/table';
 import Plots from './components/explore';
+import CostMap from './components/CostMap'; // Import CostMap component
 import { motion, AnimatePresence } from 'framer-motion';
+import 'mapbox-gl/dist/mapbox-gl.css';
+
 
 export default function Dashboard() {
     const { isSignedIn } = useAuth();
@@ -111,6 +114,27 @@ export default function Dashboard() {
         }
     ];
 
+    const hospitals = [ // Your hospital data (fetch from API, etc.)
+        {
+            name: "Hospital A",
+            latitude: 40.7589,
+            longitude: -73.9851,
+            avgCost: 2500,
+        },
+        {
+            name: "Hospital B",
+            latitude: 40.7484,
+            longitude: -73.9900,
+            avgCost: 1800,
+        },
+        {
+            name: "Hospital C",
+            latitude: 40.7633,
+            longitude: -73.9750,
+            avgCost: 3200,
+        },
+    ];
+
     return (
         <div className="animated-gradient min-h-screen text-black">
             <Navbar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
@@ -128,6 +152,9 @@ export default function Dashboard() {
                 <section id="chatbot" ref={useInViewObserver("chatbot")} className="w-full max-w-6xl mx-auto">
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: inView.chatbot ? 1 : 0 }} transition={{ duration: 2 }}>
                         <ChatComponent />
+                    </motion.div>
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: inView.chatbot ? 1 : 0 }} transition={{ duration: 2 }}>
+                        <CostMap hospitals={hospitals} />
                     </motion.div>
                 </section>
                 <section id="data" className="full-screen-section w-full max-w-6xl mx-auto">
