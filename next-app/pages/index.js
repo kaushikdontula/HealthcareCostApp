@@ -284,20 +284,27 @@ export const Home = () => {
 
               <div className="p-6">
                 <div className="mb-6">
-                  <label className="text-lg font-medium mb-2 block">Select medical service:</label>
+                  <div className="mb-4 flex justify-between items-center">
+                    <label className="text-lg font-medium">Select medical service:</label>
+                    <div className="text-sm font-semibold text-blue-600 italic">
+                      Unlock personalized cost insights with our revolutionary chatbot — available after sign-up!
+                    </div>
+                  </div>
+
                   <div className="flex flex-wrap gap-3">
                     {Object.keys(costData).map(service => (
                       <button
                         key={service}
                         onClick={() => setSelectedService(service)}
-                        className={`px-4 py-2 rounded-full transition-all ${selectedService === service ? 'bg-primary text-white' : 'bg-gray-200 hover:bg-gray-300'
-                          }`}
+                        className={`px-4 py-2 rounded-full transition-all ${selectedService === service ? 'bg-primary text-white' : 'bg-gray-200 hover:bg-gray-300'}`}
                       >
                         {service}
                       </button>
                     ))}
                   </div>
                 </div>
+
+
 
                 <div className="bg-gray-50 rounded-lg p-4">
                   <h4 className="text-lg font-medium mb-4">Cost comparison for {selectedService}</h4>
