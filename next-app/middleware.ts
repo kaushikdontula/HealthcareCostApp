@@ -1,25 +1,13 @@
-// middleware.ts
-import { NextResponse } from 'next/server';
-import { getAuth } from '@clerk/nextjs/server';
-import type { NextRequest } from 'next/server';
+// // middleware.ts
 
-export default async function middleware(req: NextRequest) {
-  const { userId } = await getAuth(req);
-  
-  // Allow access to public routes
-  if (req.nextUrl.pathname === "/" || req.nextUrl.pathname.startsWith("/api/public")) {
-    return NextResponse.next();
-  }
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-  // Redirect to sign-in if not authenticated
-  if (!userId) {
-    const signInUrl = new URL('/sign-in', req.url);
-    return NextResponse.redirect(signInUrl);
-  }
+const isProtectedRoute = createRouteMatcher(["/dashboard(.*)"]);
 
-  return NextResponse.next();
-}
+export default clerkMiddleware(async (auth, req) => {
+  if (isProtectedRoute(req)) await auth.protect();
+});
 
 export const config = {
-  matcher: ["/((?!.*\\..*|_next).*)", "/", "/(api|trpc)(.*)"],
+  matcher: ["/((?!.*\\..*|_next).*)", "/"],
 };
