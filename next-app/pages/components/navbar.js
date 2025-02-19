@@ -2,11 +2,12 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiChevronRight, FiChevronLeft } from "react-icons/fi";
-import { useAuth } from '@clerk/nextjs';
+import { useAuth, useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/router';
 
 export default function Navbar({ sidebarOpen, setSidebarOpen }) {
   const { signOut } = useAuth();
+  const { user, isLoaded } = useUser(); // Get isLoaded
   const router = useRouter();
 
   const toggleSidebar = () => {
@@ -23,7 +24,7 @@ export default function Navbar({ sidebarOpen, setSidebarOpen }) {
       router.push('/'); // Redirect to the intro page after signing out
     });
   };
-  
+
   return (
     <div className="relative">
       {/* Sidebar Toggle Button (Arrow) */}
@@ -75,6 +76,36 @@ export default function Navbar({ sidebarOpen, setSidebarOpen }) {
 
             {/* Log Out & Contact buttons */}
             <div className="mt-auto space-y-4">
+
+              {/* Profile/Settings Button */}
+              {isLoaded ? (
+                user ? (
+                    <motion.div
+                        initial={{ x: -40, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        exit={{ x: -40, opacity: 0 }}
+                        transition={{ duration: 0.6 }}
+                    >
+                        <Link
+                            href="/profile"
+                            className="block w-full px-6 py-3 text-center text-white bg-gray-800 rounded-lg hover:text-orange-400 transition-all duration-300 flex items-center gap-4"
+                        >
+                            <img
+                                src={user.imageUrl || '/default-user.png'} // Use user.imageUrl
+                                alt="Profile"
+                                className="w-8 h-8 rounded-full object-cover"
+                            />
+                            Profile / Settings
+                        </Link>
+                    </motion.div>
+                ) : (
+                    <div>Not signed in</div>
+                )
+            ) : (
+                <div>Loading profile...</div>
+            )}
+
+              
               <motion.div
                 initial={{ x: -40, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
@@ -88,6 +119,7 @@ export default function Navbar({ sidebarOpen, setSidebarOpen }) {
                   Log Out
                 </button>
               </motion.div>
+              
               <motion.div
                 initial={{ x: -40, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
