@@ -4,11 +4,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FiChevronRight, FiChevronLeft } from "react-icons/fi";
 import { useAuth, useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/router';
+import ProfileModal from "./ProfileModal"; // Import the modal
 
 export default function Navbar({ sidebarOpen, setSidebarOpen }) {
   const { signOut } = useAuth();
   const { user, isLoaded } = useUser(); // Get isLoaded
   const router = useRouter();
+  // Add state for profile modal visibility
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -76,36 +79,34 @@ export default function Navbar({ sidebarOpen, setSidebarOpen }) {
 
             {/* Log Out & Contact buttons */}
             <div className="mt-auto space-y-4">
-
               {/* Profile/Settings Button */}
               {isLoaded ? (
                 user ? (
-                    <motion.div
-                        initial={{ x: -40, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        exit={{ x: -40, opacity: 0 }}
-                        transition={{ duration: 0.6 }}
+                  <motion.div
+                    initial={{ x: -40, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={{ x: -40, opacity: 0 }}
+                    transition={{ duration: 0.6 }}
+                  >
+                    <button
+                      onClick={() => setIsProfileModalOpen(true)}
+                      className="block w-full px-6 py-3 text-center text-white bg-gray-800 rounded-lg hover:text-orange-400 transition-all duration-300 flex items-center gap-4"
                     >
-                        <Link
-                            href="/profile"
-                            className="block w-full px-6 py-3 text-center text-white bg-gray-800 rounded-lg hover:text-orange-400 transition-all duration-300 flex items-center gap-4"
-                        >
-                            <img
-                                src={user.imageUrl || '/default-user.png'} // Use user.imageUrl
-                                alt="Profile"
-                                className="w-8 h-8 rounded-full object-cover"
-                            />
-                            Profile / Settings
-                        </Link>
-                    </motion.div>
+                      <img
+                        src={user.imageUrl || "/default-user.png"}
+                        alt="Profile"
+                        className="w-8 h-8 rounded-full object-cover"
+                      />
+                      Profile / Settings
+                    </button>
+                  </motion.div>
                 ) : (
-                    <div>Not signed in</div>
+                  <div>Not signed in</div>
                 )
-            ) : (
+              ) : (
                 <div>Loading profile...</div>
-            )}
+              )}
 
-              
               <motion.div
                 initial={{ x: -40, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
@@ -119,7 +120,7 @@ export default function Navbar({ sidebarOpen, setSidebarOpen }) {
                   Log Out
                 </button>
               </motion.div>
-              
+
               <motion.div
                 initial={{ x: -40, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
@@ -148,6 +149,16 @@ export default function Navbar({ sidebarOpen, setSidebarOpen }) {
         exit={{ x: -40, opacity: 0 }}
         transition={{ duration: 0.6 }}
       ></motion.div>
+
+      {/* Render Profile Modal */}
+      <AnimatePresence>
+        {isProfileModalOpen && (
+          <ProfileModal
+            onClose={() => setIsProfileModalOpen(false)}
+            user={user}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
