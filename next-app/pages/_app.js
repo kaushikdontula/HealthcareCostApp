@@ -1,9 +1,12 @@
-import '../styles/global.css'; // Import global Tailwind CSS styles
+import { ClerkProvider } from "@clerk/nextjs";
+import "../styles/global.css";
 
 export default function App({ Component, pageProps }) {
-    return (
-        <div className="flex flex-col min-h-screen">
-            <Component {...pageProps} />
-        </div>
-    );
+  return (
+    <ClerkProvider {...pageProps}>
+      <div className="flex flex-col min-h-screen">
+        <Component {...pageProps} />
+      </div>
+    </ClerkProvider>
+  );
 }
