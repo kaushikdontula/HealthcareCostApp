@@ -2,7 +2,7 @@ import ijson
 import sys
 import os
 from typing import Tuple, List
-from data_processing.Models.MrfDbModels import Service, Provider, Pricing
+from data_processing.Models.MrfDbModels import Service, Provider, Pricing, ProviderService
 from ijson import utils, common, compat
 from ijson.common import IncompleteJSONError
 from datetime import datetime
@@ -37,28 +37,28 @@ def provider_data_objects(data, name) -> List[Provider]:
 
     return obj_arr
 
-def service_data_to_objects(data, provider_service_arr) -> Tuple[List[Service], List[Pricing]]:
+def service_data_to_objects(data, provider_service_arr) -> None:
     obj_arr = []
-    pricing_arr = []
     service_repo = ServiceRepo("healthcare_pricing.db") 
     pricing_repo = PricingRepo("healthcare_pricing.db")
+    provider_repo = ProviderServiceRepo("healthcare_pricing.db") 
     for i in data:
         rates = i["negotiated_rates"]
         description = i["description"]
+        
+        Mrf_obj = Service(cpt_code=i["billing_code"], description=description, name=i["name"])
+        service_repo.add_service(Mrf_obj)
         for j in rates:
-                providers = j["provider_references"]
-                pricing_arr += (pricing_data_to_objects(j["negotiated_prices"]))
-               
-                Mrf_obj = Service(cpt_code=i["billing_code"], description=description, name=i["name"])
-                obj_arr.append(Mrf_obj)
-                service_repo.add_service(Mrf_obj)
-    
+                pricing_arr = (pricing_data_to_objects(j["negotiated_prices"]))        
                 for price in pricing_arr:
                     pricing_repo.add_pricing(price)
-                for price in pricing_arr:
                     for provider in j["provider_references"]:
-                        provider_service_arr.append({"service_id": Mrf_obj.service_id, "pricing_id": price.pricing_id, "provider": provider})
-    return obj_arr, pricing_arr
+                        provider_repo.add_provider_service(ProviderService(service_id=Mrf_obj.service_id,
+                                                 provider_id=provider,
+                                                 pricing_id=price.pricing_id))
+
+                
+                    
 
 def pricing_data_to_objects(data) -> List[Pricing]:
     obj_arr = []
