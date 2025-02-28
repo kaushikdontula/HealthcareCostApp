@@ -34,6 +34,8 @@ def setup_logging(log_file: str) -> None:
         handlers=targets,
     )
 
+# pycharm
+
 def main():
     setup_logging("populate_log.txt")
     logging.info("Starting to populate the database...this will take a while!")
@@ -47,19 +49,19 @@ def main():
     logging.info("Objects done, adding to DB")
 
     provider_repo.add_providers(provider_objs)
-    logging.info("Providers done. Starting Provider Details.")
+    logging.info("Providers done. Starting Services.")
 
-    provider_details_repo = ProviderDetailsRepo("healthcare_pricing.db")
-    provider_details_objs = []
-    for prov in provider_objs:
-        provider_details_objs.append(ProviderDetails(provider_id=prov.provider_id))
+    # provider_details_repo = ProviderDetailsRepo("healthcare_pricing.db")
+    # provider_details_objs = []
+    # for prov in provider_objs:
+    #     provider_details_objs.append(ProviderDetails(provider_id=prov.provider_id))
     
-    provider_details_repo.add_provider_details(provider_details_objs)
-    logging.info("Done with Provider Details, starting services/pricing/provider_services")
+    # provider_details_repo.add_provider_details(provider_details_objs)
+    # logging.info("Done with Provider Details, starting services/pricing/provider_services")
     
     service_arr = mrf_processor.get_array_from_key(file_path, "in_network", limit=None)
     logging.info("Service array done, turning into objects, inserting.")
-    (service_objs, pricing_objs) = mrf_processor.service_data_to_objects(service_arr, provider_service_arr)
+    mrf_processor.service_data_to_objects(service_arr, provider_service_arr)
 
     logging.info("Done inserting services, prices, about to start provider services.")
     # print(f"provider_service_arr: {provider_service_arr}")
