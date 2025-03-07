@@ -72,13 +72,13 @@ export default function Dashboard() {
                     <motion.div className="w-full" initial={{ opacity: 0 }} animate={{ opacity: inView.chatbot ? 1 : 0 }} transition={{ duration: 2 }}>
                         <ChatComponent />
                     </motion.div>
-                    <motion.div className="w-full" initial={{ opacity: 0 }} animate={{ opacity: inView.chatbot ? 1 : 0 }} transition={{ duration: 2 }}>
+                    {/* <motion.div className="w-full" initial={{ opacity: 0 }} animate={{ opacity: inView.chatbot ? 1 : 0 }} transition={{ duration: 2 }}>
                         <CostMap hospitals={hospitals} />
-                    </motion.div>
+                    </motion.div> */}
                 </section>
-                <section id="data" className="w-full max-w-6xl mx-auto">
+                {/* <section id="data" className="w-full max-w-6xl mx-auto">
                     <DataTable data={tableData} />
-                </section>
+                </section> */}
             </main>
             <Footer />
         </div>

@@ -35,10 +35,10 @@ export default function Navbar() {
       {/* Center: Navigation Links */}
       <div className="hidden md:flex space-x-8 text-lg font-medium">
         {[
-          { name: "AI Assistant", href: "#title" },
-          { name: "Map", href: "#map" },
-          { name: "Explore", href: "#data" },
-          { name: "Our Mission", href: "#mission_statement" },
+          { name: "AI Assistant", href: "/dashboard" },
+          { name: "Cost Map", href: "/map" },
+          { name: "Tabular Data", href: "/tabularData" },
+          { name: "Mission Statement", href: "/missionStatement" },
         ].map((item) => (
           <Link
             key={item.name}
