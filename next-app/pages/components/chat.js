@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FiMenu, FiX, FiSend } from 'react-icons/fi';
+import { FaRobot } from 'react-icons/fa'; // Robot icon
 
 export default function ChatComponent() {
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
     const chatEndRef = useRef(null);
     const chatContainerRef = useRef(null); // Ref for the chat window container
-    const [sidebarOpen, setSidebarOpen] = useState(false);
     const [botTyping, setBotTyping] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -94,15 +94,10 @@ export default function ChatComponent() {
         }
     };    
 
-    // Toggle sidebar
-    const toggleSidebar = () => {
-        setSidebarOpen(!sidebarOpen);
-    };
-
     return (
-        <div className="relative flex">
+        <div className="relative flex justify-center items-center p-6 w-full mx-auto">
             {/* Chat Container */}
-            <div className={`relative flex shadow-xl flex-col bg-transparent max-w-[1200px] rounded-xl shadow-xl p-6 border-2 border-gray-700 transition-all duration-300 ease-in-out ${sidebarOpen ? 'w-2/3' : 'w-full'} h-[calc(100vh-15rem)]`}>
+            <div className="relative flex flex-col bg-white w-full max-w-[100%] rounded-xl p-6 border border-gray-300 h-[calc(100vh-15rem)]">
                 {/* Chat Messages Container */}
                 <div
                     ref={chatContainerRef}
@@ -111,10 +106,10 @@ export default function ChatComponent() {
                     {messages.map((msg, index) => (
                         <div
                             key={index}
-                            className={`p-4 max-w-xs md:max-w-md shadow-lg transition-all duration-300 rounded-xl flex items-center ${
+                            className={`p-4 w-full md:max-w-md shadow-lg transition-all duration-300 rounded-xl flex items-center ${
                                 msg.sender === 'user'
-                                    ? 'bg-gray-100 text-gray-800 self-end ml-auto rounded-br-none'
-                                    : 'bg-gray-600 text-gray-100 self-start rounded-bl-none'
+                                    ? 'bg-gray-100 text-gray-800 self-end ml-auto rounded-br-none' // User msg
+                                    : 'bg-gray-700 text-gray-100 self-start rounded-bl-none' // Bot msg
                             }`}
                         >
                             {msg.sender === 'bot' && isLoading && msg.loading ? (
@@ -131,15 +126,7 @@ export default function ChatComponent() {
                 </div>
 
                 {/* Bottom Input Section: Chat History Button, Message Input, and Send Button */}
-                <div className="flex items-center w-full mt-4 space-x-4">
-                    {/* Chat History Button */}
-                    <button
-                        onClick={toggleSidebar}
-                        className="text-black p-2 rounded-lg"
-                    >
-                        <FiMenu size={24} />
-                    </button>
-    
+                <div className="flex items-center w-full mt-4 space-x-4">    
                     {/* Message Input */}
                     <form onSubmit={handleSubmit} className="flex-1 flex items-center space-x-4">
                         <input
@@ -147,37 +134,19 @@ export default function ChatComponent() {
                             value={input}
                             onChange={handleInputChange}
                             placeholder="Message Healthcare Cost Assistant"
-                            className="w-full p-4 bg-gray-700 text-gray-100 border border-gray-900 rounded-lg shadow-xl focus:outline-none transition-all"
+                            className="flex-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                         />
                     </form>
     
                     {/* Send Button */}
                     <button
                         onClick={handleSubmit}
-                        className="text-black p-4 rounded-full hover:bg-white shadow-xl focus:ring-2 border-2 border-black focus:ring-black transition-all transform hover:scale-105"
+                        className="p-3 ml-2 rounded-full bg-primary text-white hover:bg-primary-dark transition"
                     >
                         <FiSend size={20} />
                     </button>
                 </div>
             </div>
-    
-            {/* Sidebar: Chat History */}
-            {sidebarOpen && (
-                <div
-                    className="w-2/3 p-6 bg-gray-700 text-gray-200 shadow-lg ml-5 shadow-xl transition-all duration-300 ease-in-out rounded-lg ease-in-out h-[calc(100vh-15rem)] overflow-y-auto"
-                >
-                    {/* Chat History */}
-                    <h2 className="text-xl font-semibold mb-4">Chat History</h2>
-                    <ul className="overflow-y-auto h-full">
-                        {messages.map((msg, index) => (
-                            <li key={index} className="mb-2 p-3 rounded-lg bg-gray-800">
-                                <strong>{msg.sender === 'user' ? 'You' : 'Bot'}:</strong>
-                                <p>{msg.text}</p>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            )}
         </div>
     );
 }

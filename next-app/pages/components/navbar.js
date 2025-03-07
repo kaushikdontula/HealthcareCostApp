@@ -1,156 +1,81 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiChevronRight, FiChevronLeft } from "react-icons/fi";
-import { useAuth, useUser } from '@clerk/nextjs';
-import { useRouter } from 'next/router';
-import ProfileModal from "./ProfileModal"; // Import the modal
+import { useAuth, useUser } from "@clerk/nextjs";
+import { useRouter } from "next/router";
+import { FiUser, FiLogOut } from "react-icons/fi"; // Modern Icons
+import ProfileModal from "./ProfileModal";
 
-export default function Navbar({ sidebarOpen, setSidebarOpen }) {
+export default function Navbar() {
   const { signOut } = useAuth();
-  const { user, isLoaded } = useUser(); // Get isLoaded
+  const { user, isLoaded } = useUser();
   const router = useRouter();
-  // Add state for profile modal visibility
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
-
-  useEffect(() => {
-    // Open the sidebar when the component mounts
-    setSidebarOpen(true);
-  }, []);
 
   const handleLogout = () => {
     signOut(() => {
-      router.push('/'); // Redirect to the intro page after signing out
+      router.push("/");
     });
   };
 
   return (
-    <div className="relative">
-      {/* Sidebar Toggle Button (Arrow) */}
-      <motion.div
-        className={`fixed top-1/2 left-0 z-50 transform -translate-y-1/2 p-2 bg-gray-700 text-white rounded-r-full cursor-pointer ${
-          sidebarOpen ? "rotate-180" : ""
-        }`}
-        onClick={toggleSidebar}
-        initial={{ x: -40, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        exit={{ x: -40, opacity: 0 }}
-        transition={{ duration: 0.6 }}
-      >
-        {sidebarOpen ? <FiChevronLeft size={24} /> : <FiChevronRight size={24} />}
-      </motion.div>
+    <motion.nav
+      className="fixed top-0 left-0 w-full bg-gray-700 text-gray-300 shadow-lg z-50 flex items-center justify-between px-8 py-4"
+      initial={{ y: -50, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+    >
+      {/* Left Side: Logo / Title */}
+      <div className="flex items-center space-x-4">
+        <Link href="/" className="text-2xl font-extrabold tracking-wide text-gray-300 hover:text-white transition duration-300">
+          Healthcare Transparency
+        </Link>
+      </div>
 
-      {/* Sidebar Menu */}
-      <AnimatePresence>
-        {sidebarOpen && (
-          <motion.div
-            className="fixed top-0 left-0 h-full w-60 bg-gray-700 text-white shadow-lg z-40 flex flex-col py-6 px-4 gap-6"
-            initial={{ x: -400 }}
-            animate={{ x: 0 }}
-            exit={{ x: -400 }}
-            transition={{ type: "transform" }}
+      {/* Center: Navigation Links */}
+      <div className="hidden md:flex space-x-8 text-lg font-medium">
+        {[
+          { name: "AI Assistant", href: "#title" },
+          { name: "Map", href: "#map" },
+          { name: "Explore", href: "#data" },
+          { name: "Our Mission", href: "#mission_statement" },
+        ].map((item) => (
+          <Link
+            key={item.name}
+            href={item.href}
+            className="relative text-gray-300 hover:text-white transition-all duration-300 after:content-[''] after:absolute after:w-0 after:h-[2px] after:bg-orange-400 after:bottom-0 after:left-1/2 after:transition-all after:duration-300 hover:after:w-full hover:after:left-0"
           >
-            {/* Menu Items */}
-            {[
-              { name: "AI Assistant", href: "#title" },
-              { name: "Map", href: "#map" },
-              { name: "Explore", href: "#data" },
-              { name: "Our Mission", href: "#mission_statement" },
-            ].map((item) => (
-              <motion.div
-                key={item.name}
-                initial={{ x: -40, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: -40, opacity: 0 }}
-                transition={{ duration: 0.6 }}
-              >
-                <Link
-                  href={item.href}
-                  className="block w-full px-6 py-3 text-center text-white bg-transparent border-b-2 border-gray-600 hover:text-orange-400 hover:border-orange-400 transition-all duration-300"
-                >
-                  {item.name}
-                </Link>
-              </motion.div>
-            ))}
+            {item.name}
+          </Link>
+        ))}
+      </div>
 
-            {/* Log Out & Contact buttons */}
-            <div className="mt-auto space-y-4">
-              {/* Profile/Settings Button */}
-              {isLoaded ? (
-                user ? (
-                  <motion.div
-                    initial={{ x: -40, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    exit={{ x: -40, opacity: 0 }}
-                    transition={{ duration: 0.6 }}
-                  >
-                    <button
-                      onClick={() => setIsProfileModalOpen(true)}
-                      className="block w-full px-6 py-3 text-center text-white bg-gray-800 rounded-lg hover:text-orange-400 transition-all duration-300 flex items-center gap-4"
-                    >
-                      <img
-                        src={user.imageUrl || "/default-user.png"}
-                        alt="Profile"
-                        className="w-8 h-8 rounded-full object-cover"
-                      />
-                      Profile / Settings
-                    </button>
-                  </motion.div>
-                ) : (
-                  <div>Not signed in</div>
-                )
-              ) : (
-                <div>Loading profile...</div>
-              )}
-
-              <motion.div
-                initial={{ x: -40, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: -40, opacity: 0 }}
-                transition={{ duration: 0.6 }}
-              >
-                <button
-                  onClick={handleLogout}
-                  className="block w-full px-6 py-3 text-center text-white bg-gray-800 rounded-lg hover:text-orange-400 transition-all duration-300"
-                >
-                  Log Out
-                </button>
-              </motion.div>
-
-              <motion.div
-                initial={{ x: -40, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: -40, opacity: 0 }}
-                transition={{ duration: 0.6 }}
-              >
-                <Link
-                  href="/contact"
-                  className="block w-full px-6 py-3 text-center text-white bg-transparent border-t-2 border-gray-600 hover:text-orange-400 hover:border-orange-400 transition-all duration-300"
-                >
-                  Contact
-                </Link>
-              </motion.div>
-            </div>
-          </motion.div>
+      {/* Right Side: Profile & Logout */}
+      <div className="flex items-center space-x-6">
+        {/* Profile Button */}
+        {isLoaded && user ? (
+          <button
+            onClick={() => setIsProfileModalOpen(true)}
+            className="flex items-center gap-2 text-gray-300 hover:text-orange-400 transition-all duration-300"
+          >
+            <FiUser size={20} />
+            <span className="hidden md:inline">{user.fullName || "Profile"}</span>
+          </button>
+        ) : (
+          <div className="animate-pulse">Loading...</div>
         )}
-      </AnimatePresence>
 
-      {/* Visible Sidebar Indication (on the left side) */}
-      <motion.div
-        className={`fixed top-0 left-0 h-full w-2 bg-gray-700 z-30 transition-all duration-600 ${
-          sidebarOpen ? "w-60" : "w-2"
-        }`}
-        initial={{ x: -40, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        exit={{ x: -40, opacity: 0 }}
-        transition={{ duration: 0.6 }}
-      ></motion.div>
+        {/* Logout Button */}
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-2 px-4 py-2 bg-gray-800/60 hover:bg-gray-800/90 text-gray-300 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg"
+        >
+          <FiLogOut size={20} />
+          <span className="hidden md:inline">Log Out</span>
+        </button>
+      </div>
 
-      {/* Render Profile Modal */}
+      {/* Profile Modal */}
       <AnimatePresence>
         {isProfileModalOpen && (
           <ProfileModal
@@ -159,6 +84,6 @@ export default function Navbar({ sidebarOpen, setSidebarOpen }) {
           />
         )}
       </AnimatePresence>
-    </div>
+    </motion.nav>
   );
 }
