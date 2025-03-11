@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth, useUser } from "@clerk/nextjs";
 import { useRouter } from "next/router";
 import { FiUser, FiLogOut } from "react-icons/fi"; // Modern Icons
+import { MdOutlineHome } from "react-icons/md";
 import ProfileModal from "./ProfileModal";
 
 export default function Navbar() {
@@ -20,43 +21,44 @@ export default function Navbar() {
 
   return (
     <motion.nav
-      className="fixed top-0 left-0 w-full bg-gray-700 text-gray-300 shadow-lg z-50 flex items-center justify-between px-8 py-4"
+      className="fixed top-0 left-0 w-full bg-gray-50 text-gray-300 shadow-lg z-50 flex items-center px-8 py-4"
       initial={{ y: -50, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
     >
-      {/* Left Side: Logo / Title */}
-      <div className="flex items-center space-x-4">
-        <Link href="/" className="text-2xl font-extrabold tracking-wide text-gray-300 hover:text-white transition duration-300">
-          Healthcare Transparency
+      {/* Left Side: Home Icon */}
+      <div className="flex items-center">
+        <Link href="/" className="text-[#282c34] hover:text-orange-600 transition duration-300">
+          <MdOutlineHome size={32} />
         </Link>
       </div>
 
-      {/* Center: Navigation Links */}
-      <div className="hidden md:flex space-x-8 text-lg font-medium">
-        {[
-          { name: "AI Assistant", href: "/dashboard" },
-          { name: "Cost Map", href: "/map" },
-          { name: "Tabular Data", href: "/tabularData" },
-          { name: "Mission Statement", href: "/missionStatement" },
-        ].map((item) => (
-          <Link
-            key={item.name}
-            href={item.href}
-            className="relative text-gray-300 hover:text-white transition-all duration-300 after:content-[''] after:absolute after:w-0 after:h-[2px] after:bg-orange-400 after:bottom-0 after:left-1/2 after:transition-all after:duration-300 hover:after:w-full hover:after:left-0"
-          >
-            {item.name}
-          </Link>
-        ))}
+      {/* Center: Navigation Links (Absolutely Centered) */}
+      <div className="absolute left-1/2 transform -translate-x-1/2">
+        <div className="flex space-x-8 text-lg font-medium">
+          {[
+            { name: "AI Assistant", href: "/dashboard" },
+            { name: "Cost Map", href: "/map" },
+            { name: "Tabular Data", href: "/tabularData" },
+          ].map((item) => (
+            <Link
+              key={item.name}
+              href={item.href}
+              className="relative text-[#282c34] hover:text-orange-600 transition-all duration-300 after:content-[''] after:absolute after:w-0 after:h-[2px] after:bg-orange-400 after:bottom-0 after:left-1/2 after:transition-all after:duration-300 hover:after:w-full hover:after:left-0"
+            >
+              {item.name}
+            </Link>
+          ))}
+        </div>
       </div>
 
       {/* Right Side: Profile & Logout */}
-      <div className="flex items-center space-x-6">
+      <div className="ml-auto flex items-center space-x-6">
         {/* Profile Button */}
         {isLoaded && user ? (
           <button
             onClick={() => setIsProfileModalOpen(true)}
-            className="flex items-center gap-2 text-gray-300 hover:text-orange-400 transition-all duration-300"
+            className="flex items-center gap-2 text-[#282c34] hover:text-orange-600 transition-all duration-300"
           >
             <FiUser size={20} />
             <span className="hidden md:inline">{user.fullName || "Profile"}</span>
@@ -68,7 +70,7 @@ export default function Navbar() {
         {/* Logout Button */}
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 px-4 py-2 bg-gray-800/60 hover:bg-gray-800/90 text-gray-300 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg"
+          className="flex items-center gap-2 px-4 py-2 bg-[#282c34] hover:bg-gray-800/90 text-gray-300 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg"
         >
           <FiLogOut size={20} />
           <span className="hidden md:inline">Log Out</span>

@@ -114,6 +114,28 @@ export const Home = () => {
     }
   ];
 
+  // Mission Statement Cards
+  const missionCards = [
+    {
+      id: "1",
+      title: "Empower with Knowledge",
+      description: "We aim to eliminate the confusion around healthcare pricing by making it easy for anyone to understand.",
+      color: "text-blue-500",
+    },
+    {
+      id: "2",
+      title: "Shed Light on Healthcare Pricing",
+      description: "Healthcare pricing in the U.S. is unnecessarily complicated. We're here to show users the magnitude of the problem.",
+      color: "text-cyan-500",
+    },
+    {
+      id: "3",
+      title: "Comprehensive Data and Analysis",
+      description: "Our platform provides detailed data analysis and various types of charts that help users compare healthcare prices.",
+      color: "text-green-500",
+    }
+  ];
+
   // Auto-rotate testimonials
   useEffect(() => {
     const interval = setInterval(() => {
@@ -563,8 +585,48 @@ export const Home = () => {
             </motion.div>
           </div>
         </div>
+      </div>
 
-        
+      {/* Mission Statement Section */}
+      <div className="container mx-auto">
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-3xl font-bold text-center mb-12"
+        >
+          <span className="relative inline-block">
+            Our Mission
+            <motion.span
+              className="absolute -bottom-2 left-1/4 right-1/4 h-1 bg-secondary"
+              initial={{ width: 0 }}
+              animate={{ width: "50%" }}
+              transition={{ delay: 0.5, duration: 0.8 }}
+            />
+          </span>
+        </motion.h2>
+
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.7 }}
+          className="text-lg text-center text-gray-700 mb-8"
+        >
+          Healthcare pricing can be overwhelmingly complex, but we make it transparent and easy to understand.
+        </motion.p>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          {missionCards.map((card) => (
+            <motion.div
+              key={card.id}
+              className="bg-white p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-shadow duration-300"
+              whileHover={{ scale: 1.05 }}
+            >
+              <h3 className={`text-xl font-semibold mb-2 ${card.color}`}>{card.title}</h3>
+              <p className="text-gray-600">{card.description}</p>
+            </motion.div>
+          ))}
+        </div>
       </div>
 
       {/* Footer */}

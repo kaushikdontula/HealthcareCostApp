@@ -15,7 +15,7 @@ export default function MapPage() {
     return (
         <div className="relative min-h-screen overflow-auto bg-gray-300 flex flex-col">
             <Navbar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-            <main className="flex-grow flex flex-col items-center p-8 lg:px-16 xl:px-32 space-y-10 pt-20">
+            <main className="flex-grow flex flex-col items-center p-8  xl:px-32 space-y-10">
                 <section className="w-full max-w-7xl mx-auto">
                     <CostMap hospitals={hospitals} />
                 </section>

@@ -97,7 +97,7 @@ export default function ChatComponent() {
     return (
         <div className="relative flex justify-center items-center p-6 w-full mx-auto">
             {/* Chat Container */}
-            <div className="relative flex flex-col bg-white w-full max-w-[100%] rounded-xl p-6 border border-gray-300 h-[calc(100vh-15rem)]">
+            <div className="relative flex flex-col bg-gray-50 w-full max-w-[100%] rounded-xl p-6 h-[calc(100vh-15rem)]">
                 {/* Chat Messages Container */}
                 <div
                     ref={chatContainerRef}

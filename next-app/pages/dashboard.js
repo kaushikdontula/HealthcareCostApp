@@ -65,20 +65,14 @@ export default function Dashboard() {
     };
 
     return (
-        <div className="relative min-h-screen overflow-auto bg-gray-300 flex flex-col">
+        <div className="relative min-h-screen overflow-auto bg-gray-50 flex flex-col">
             <Navbar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
             <main className="flex-grow flex flex-col items-center p-8 lg:px-16 xl:px-32 space-y-10">
                 <section id="chatbot" ref={useInViewObserver("chatbot")} className="w-full max-w-7xl mx-auto flex flex-col items-center space-y-10 pt-20">
                     <motion.div className="w-full" initial={{ opacity: 0 }} animate={{ opacity: inView.chatbot ? 1 : 0 }} transition={{ duration: 2 }}>
                         <ChatComponent />
                     </motion.div>
-                    {/* <motion.div className="w-full" initial={{ opacity: 0 }} animate={{ opacity: inView.chatbot ? 1 : 0 }} transition={{ duration: 2 }}>
-                        <CostMap hospitals={hospitals} />
-                    </motion.div> */}
                 </section>
-                {/* <section id="data" className="w-full max-w-6xl mx-auto">
-                    <DataTable data={tableData} />
-                </section> */}
             </main>
             <Footer />
         </div>
