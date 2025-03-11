@@ -19,9 +19,15 @@ export default function Navbar() {
     });
   };
 
+  const navLinks = [
+    { name: "AI Assistant", href: "/chatbot" },
+    { name: "Cost Map", href: "/map" },
+    { name: "Tabular Data", href: "/tabularData" },
+  ];
+
   return (
     <motion.nav
-      className="fixed top-0 left-0 w-full bg-gray-50 text-gray-300 shadow-lg z-50 flex items-center px-8 py-4"
+      className="fixed top-0 left-0 w-full bg-gray-50 text-gray-900 shadow-lg z-50 flex items-center px-8 py-4"
       initial={{ y: -50, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
@@ -36,19 +42,24 @@ export default function Navbar() {
       {/* Center: Navigation Links (Absolutely Centered) */}
       <div className="absolute left-1/2 transform -translate-x-1/2">
         <div className="flex space-x-8 text-lg font-medium">
-          {[
-            { name: "AI Assistant", href: "/dashboard" },
-            { name: "Cost Map", href: "/map" },
-            { name: "Tabular Data", href: "/tabularData" },
-          ].map((item) => (
-            <Link
-              key={item.name}
-              href={item.href}
-              className="relative text-[#282c34] hover:text-orange-600 transition-all duration-300 after:content-[''] after:absolute after:w-0 after:h-[2px] after:bg-orange-400 after:bottom-0 after:left-1/2 after:transition-all after:duration-300 hover:after:w-full hover:after:left-0"
-            >
-              {item.name}
-            </Link>
-          ))}
+          {navLinks.map((item) => {
+            const isActive = router.pathname === item.href;
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`relative transition-all duration-300 
+                  ${isActive ? "text-orange-600 font-semibold" : "text-[#282c34] hover:text-orange-600"}
+                  after:content-[''] after:absolute after:w-0 after:h-[2px] 
+                  after:bg-orange-400 after:bottom-0 after:left-1/2 
+                  after:transition-all after:duration-300 hover:after:w-full hover:after:left-0 
+                  ${isActive ? "after:w-full after:left-0" : ""}
+                `}
+              >
+                {item.name}
+              </Link>
+            );
+          })}
         </div>
       </div>
 

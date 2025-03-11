@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import Navbar from "./components/navbar"; // Adjusted import
+import Navbar from "./components/navbar";
 import Footer from "./components/footer";
-import DataTable from "./components/table"; // Import the table component
+import DataTable from "./components/table";
 
 export default function TabularDataPage() {
     const [tableData, setTableData] = useState([]);
@@ -29,7 +29,7 @@ export default function TabularDataPage() {
     }, []);
 
     return (
-        <div className="relative min-h-screen overflow-auto bg-gray-300 flex flex-col">
+        <div className="relative min-h-screen overflow-auto bg-gray-50 flex flex-col">
             <Navbar />
             <main className="flex-grow flex flex-col items-center p-8 lg:px-16 xl:px-32 space-y-10 pt-20">
                 <section className="w-full max-w-6xl mx-auto">

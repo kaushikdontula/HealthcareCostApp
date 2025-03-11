@@ -56,7 +56,7 @@ export const Home = () => {
 
   const handleNavigation = () => {
     if (isSignedIn) {
-      router.push("/dashboard");
+      router.push("/chatbot");
     } else {
       router.push("/sign-in");
     }

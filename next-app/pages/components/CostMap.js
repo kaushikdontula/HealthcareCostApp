@@ -88,7 +88,7 @@ const CostMap = ({ hospitals }) => {
 
 
   return (
-    <section id="map" className="mt-40"> 
+    <section id="map" className="mt-6"> 
       <div className="bg-white p-4 rounded-lg shadow-md flex items-center justify-between mb-4"> {/* Style container */}
         <div>
           <div className="text-gray-600 text-sm">
