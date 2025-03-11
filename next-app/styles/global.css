@@ -19,6 +19,25 @@ body {
    scroll-snap-type: y mandatory; /* Enable vertical snapping */
 }
 
+/* Hide the scrollbar background */
+textarea::-webkit-scrollbar {
+   width: 8px; /* Adjust scrollbar width */
+ }
+ 
+ textarea::-webkit-scrollbar-thumb {
+   background: rgba(120, 120, 120, 0.6); /* Scrollbar thumb color */
+   border-radius: 6px;
+ }
+ 
+ textarea::-webkit-scrollbar-track {
+   background: transparent !important; /* Removes background */
+ }
+ 
+ /* Optional: Make the scrollbar more subtle */
+ textarea:hover::-webkit-scrollbar-thumb {
+   background: rgba(180, 180, 180, 0.8);
+ } 
+
 @layer base {
   :root {
       --background: 0 0% 100%;

@@ -50,10 +50,9 @@ export default function Navbar() {
                 href={item.href}
                 className={`relative transition-all duration-300 
                   ${isActive ? "text-orange-600 font-semibold" : "text-[#282c34] hover:text-orange-600"}
-                  after:content-[''] after:absolute after:w-0 after:h-[2px] 
-                  after:bg-orange-400 after:bottom-0 after:left-1/2 
-                  after:transition-all after:duration-300 hover:after:w-full hover:after:left-0 
-                  ${isActive ? "after:w-full after:left-0" : ""}
+                  after:content-[''] after:absolute after:h-[2px] after:bg-orange-400 
+                  after:bottom-0 after:left-0 after:right-0 after:mx-auto after:transition-all 
+                  after:duration-300 hover:after:w-full ${isActive ? "after:w-full" : "after:w-0"}
                 `}
               >
                 {item.name}

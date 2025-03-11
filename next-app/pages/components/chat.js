@@ -57,10 +57,17 @@ export default function ChatComponent() {
         const userMessage = { text: input, sender: 'user' };
         setMessages((prevMessages) => [...prevMessages, userMessage]);
         setInput('');
-        
+    
+        // Reset textarea height and scroll position
+        if (inputRef.current) {
+            inputRef.current.style.height = "40px";  // Reset height
+            inputRef.current.scrollTop = 0;          // Prevent lingering scrollbar
+            inputRef.current.style.overflow = "hidden"; // Hide scrollbar when empty
+        }
+    
         setIsLoading(true);
         setBotTyping(true);
-        
+    
         // Show loading message
         setMessages((prevMessages) => [
             ...prevMessages,
@@ -92,17 +99,16 @@ export default function ChatComponent() {
             setIsLoading(false);
             setBotTyping(false);
         }
-    };    
+    };
+        
+    const inputRef = useRef(null);
 
     return (
-        <div className="relative flex justify-center items-center p-6 w-full mx-auto">
-            {/* Chat Container */}
-            <div className="relative flex flex-col bg-gray-50 w-full max-w-[100%] rounded-xl p-6 h-[calc(100vh-15rem)]">
-                {/* Chat Messages Container */}
-                <div
-                    ref={chatContainerRef}
-                    className="flex-1 overflow-y-auto space-y-4 max-h-[70vh]"
-                >
+        <div className="relative flex justify-center items-center w-full mx-auto">
+            {/* Chat Container - Remove inner scrollbar */}
+            <div className="relative flex flex-col bg-gray-50 w-full max-w-[70%] rounded-xl p-2">
+                {/* Chat Messages Container - Remove `overflow-y-auto` */}
+                <div ref={chatContainerRef} className="flex-1 space-y-4 w-full pb-[5rem]">
                     {messages.map((msg, index) => (
                         <div
                             key={index}
@@ -125,26 +131,37 @@ export default function ChatComponent() {
                     <div ref={chatEndRef} />
                 </div>
 
-                {/* Bottom Input Section: Chat History Button, Message Input, and Send Button */}
-                <div className="flex items-center w-full mt-4 space-x-4">    
-                    {/* Message Input */}
-                    <form onSubmit={handleSubmit} className="flex-1 flex items-center space-x-4">
-                        <input
-                            type="text"
-                            value={input}
-                            onChange={handleInputChange}
-                            placeholder="Message Healthcare Cost Assistant"
-                            className="flex-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                        />
-                    </form>
-    
-                    {/* Send Button */}
-                    <button
-                        onClick={handleSubmit}
-                        className="p-3 ml-2 rounded-full bg-primary text-white hover:bg-primary-dark transition"
-                    >
-                        <FiSend size={20} />
-                    </button>
+                {/* FIXED Input Bar at Bottom */}
+                <div className="fixed bottom-0 left-0 w-full flex justify-center bg-gray-50 py-4 shadow-lg">
+                    <div className="flex items-center bg-gray-800 p-3 rounded-[1.5rem] w-full max-w-3xl">
+                        {/* Expanding & Scrollable Textarea */}
+                        <form onSubmit={handleSubmit} className="flex-grow">
+                            <textarea
+                                ref={inputRef} // Attach ref to track height & reset scroll
+                                value={input}
+                                onChange={handleInputChange}
+                                onInput={(e) => {
+                                    e.target.style.height = "40px"; // Reset height before measuring
+                                    e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`; // Expand dynamically up to 120px
+                                    e.target.scrollTop = 0; // Reset scroll position dynamically
+
+                                    // Hide scrollbar when empty
+                                    e.target.style.overflow = e.target.value ? "auto" : "hidden";
+                                }}
+                                placeholder="Ask anything..."
+                                className="w-full bg-transparent text-white placeholder-gray-400 focus:outline-none px-4 resize-none overflow-hidden min-h-[40px] max-h-[120px] leading-[1.5rem] py-[10px] align-middle"
+                                rows={1} // Starts with 1 row
+                            />
+                        </form>
+
+                        {/* Send Button */}
+                        <button
+                            onClick={handleSubmit}
+                            className="ml-3 p-3 bg-gray-600 hover:bg-gray-700 text-white rounded-full transition-all"
+                        >
+                            <FiSend size={20} />
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
