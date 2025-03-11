@@ -17,10 +17,10 @@ export default function ChatComponent() {
 
     // Automatically scroll the chat window to the bottom when messages change
     useEffect(() => {
-        if (chatContainerRef.current) {
-            chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-        }
-    }, [messages]);
+        setTimeout(() => {
+            window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+        }, 100); // Delay to allow rendering before scrolling
+    }, [messages]);    
 
 
     // Simulate typing effect for bot messages
