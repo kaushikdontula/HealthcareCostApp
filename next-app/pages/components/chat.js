@@ -178,6 +178,12 @@ export default function ChatComponent() {
                                     ref={inputRef}
                                     value={input}
                                     onChange={(e) => setInput(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter" && !e.shiftKey) {
+                                            e.preventDefault();
+                                            handleSubmit(e); // Calls the submit function when enter key is pressed
+                                        }
+                                    }}
                                     onInput={(e) => {
                                         e.target.style.height = "40px";
                                         e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
@@ -227,13 +233,19 @@ export default function ChatComponent() {
                                     ref={inputRef}
                                     value={input}
                                     onChange={handleInputChange}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter" && !e.shiftKey) {
+                                            e.preventDefault();
+                                            handleSubmit(e); // Calls the submit function when enter key is pressed
+                                        }
+                                    }}
                                     onInput={(e) => {
                                         e.target.style.height = "40px";
                                         e.target.style.height = `${Math.min(e.target.scrollHeight, 100)}px`;
                                         e.target.scrollTop = 0;
                                         e.target.style.overflow = e.target.value ? "auto" : "hidden";
                                     }}
-                                    placeholder="Ask anything..."
+                                    placeholder="Message Healthcare Cost Assistant..."
                                     className="w-full bg-transparent text-white placeholder-gray-400 focus:outline-none px-4 resize-none overflow-hidden min-h-[40px] max-h-[100px] leading-[1.5rem] py-[10px] align-middle"
                                     rows={1}
                                 />
