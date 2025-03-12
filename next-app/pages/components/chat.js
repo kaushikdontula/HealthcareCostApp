@@ -1,30 +1,50 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { motion } from "framer-motion";
 import { FiMenu, FiX, FiSend } from 'react-icons/fi';
+import { FaRobot } from 'react-icons/fa'; // Robot icon
 
 export default function ChatComponent() {
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
     const chatEndRef = useRef(null);
     const chatContainerRef = useRef(null); // Ref for the chat window container
-    const [sidebarOpen, setSidebarOpen] = useState(false);
     const [botTyping, setBotTyping] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [exampleText, setExampleText] = useState(''); // Holds the typed effect example text
 
-    // Simulate initial bot message
+    const exampleQuestion = "How much does an MRI cost with insurance?";
+
+    // Typing effect for the example question
     useEffect(() => {
-        simulateTypingEffect("Hello! Feel free to ask me any questions regarding your healthcare cost concerns.", 40);
+        let index = 0;
+        const startTypingDelay = 1800; // 1.8s delay to allow animations to finish
+
+        const startTyping = setTimeout(() => {
+            const interval = setInterval(() => {
+                if (index < exampleQuestion.length) {
+                    setExampleText(exampleQuestion.slice(0, index + 1));
+                    index++;
+                } else {
+                    clearInterval(interval);
+                }
+            }, 50);
+        }, startTypingDelay);
+
+        return () => clearTimeout(startTyping);
     }, []);
 
-    // Automatically scroll the chat window to the bottom when messages change
+
+    // Ensure page scrolls to last message
     useEffect(() => {
-        if (chatContainerRef.current) {
-            chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+        if (messages.length > 0) {
+            setTimeout(() => {
+                chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+            }, 100); // Ensures rendering completes before scrolling
         }
     }, [messages]);
 
-
     // Simulate typing effect for bot messages
-    const simulateTypingEffect = (fullText, speed = 15) => {
+    const simulateTypingEffect = (fullText, speed = 50) => {
         setBotTyping(true);
         let index = 0;
         let typingMessage = { text: "", sender: "bot" };
@@ -57,14 +77,21 @@ export default function ChatComponent() {
         const userMessage = { text: input, sender: 'user' };
         setMessages((prevMessages) => [...prevMessages, userMessage]);
         setInput('');
-        
+    
+        // Reset textarea height and scroll position
+        if (inputRef.current) {
+            inputRef.current.style.height = "40px";  // Reset height
+            inputRef.current.scrollTop = 0;          // Prevent lingering scrollbar
+            inputRef.current.style.overflow = "hidden"; // Hide scrollbar when empty
+        }
+    
         setIsLoading(true);
         setBotTyping(true);
-        
+    
         // Show loading message
         setMessages((prevMessages) => [
             ...prevMessages,
-            { text: "Thinking ...", sender: "bot", loading: true }
+            { text: "", sender: "bot", loading: true }
         ]);
     
         try {
@@ -92,90 +119,152 @@ export default function ChatComponent() {
             setIsLoading(false);
             setBotTyping(false);
         }
-    };    
-
-    // Toggle sidebar
-    const toggleSidebar = () => {
-        setSidebarOpen(!sidebarOpen);
     };
+        
+    const inputRef = useRef(null);
 
     return (
-        <div className="relative flex">
-            {/* Chat Container */}
-            <div className={`relative flex shadow-xl flex-col bg-transparent max-w-[1200px] rounded-xl shadow-xl p-6 border-2 border-gray-700 transition-all duration-300 ease-in-out ${sidebarOpen ? 'w-2/3' : 'w-full'} h-[calc(100vh-15rem)]`}>
-                {/* Chat Messages Container */}
-                <div
-                    ref={chatContainerRef}
-                    className="flex-1 overflow-y-auto space-y-4 max-h-[70vh]"
-                >
-                    {messages.map((msg, index) => (
-                        <div
-                            key={index}
-                            className={`p-4 max-w-xs md:max-w-md shadow-lg transition-all duration-300 rounded-xl flex items-center ${
-                                msg.sender === 'user'
-                                    ? 'bg-gray-100 text-gray-800 self-end ml-auto rounded-br-none'
-                                    : 'bg-gray-600 text-gray-100 self-start rounded-bl-none'
-                            }`}
-                        >
-                            {msg.sender === 'bot' && isLoading && msg.loading ? (
-                                <div className="flex items-center space-x-2">
-                                    <div className="w-4 h-4 border-2 border-gray-100 border-t-transparent animate-spin rounded-full"></div>
-                                    <span>{msg.text}</span>
-                                </div>
-                            ) : (
-                                msg.text
-                            )}
-                        </div>
-                    ))}
-                    <div ref={chatEndRef} />
-                </div>
+        <div className="relative flex flex-col w-full min-h-screen mx-aut p-6">
+            {messages.length === 0 ? (
+                // Initial Welcome State
+                <div className="flex flex-col items-center justify-center text-center space-y-6 h-screen -mt-12">
+                    {/* Title with animation */}
+                    <motion.h1 
+                        className="text-4xl font-bold text-gray-900"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8, ease: "easeOut" }}
+                    >
+                        AI Healthcare Cost Assistant
+                    </motion.h1>
 
-                {/* Bottom Input Section: Chat History Button, Message Input, and Send Button */}
-                <div className="flex items-center w-full mt-4 space-x-4">
-                    {/* Chat History Button */}
-                    <button
-                        onClick={toggleSidebar}
-                        className="text-black p-2 rounded-lg"
+                    {/* Subtitle with subtle animation */}
+                    <motion.h2 
+                        className="text-xl text-gray-600 font-medium"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 1, ease: "easeOut", delay: 0.3 }}
                     >
-                        <FiMenu size={24} />
-                    </button>
-    
-                    {/* Message Input */}
-                    <form onSubmit={handleSubmit} className="flex-1 flex items-center space-x-4">
-                        <input
-                            type="text"
-                            value={input}
-                            onChange={handleInputChange}
-                            placeholder="Message Healthcare Cost Assistant"
-                            className="w-full p-4 bg-gray-700 text-gray-100 border border-gray-900 rounded-lg shadow-xl focus:outline-none transition-all"
-                        />
-                    </form>
-    
-                    {/* Send Button */}
-                    <button
-                        onClick={handleSubmit}
-                        className="text-black p-4 rounded-full hover:bg-white shadow-xl focus:ring-2 border-2 border-black focus:ring-black transition-all transform hover:scale-105"
+                        Get clear answers on medical pricing, insurance, and billing.
+                    </motion.h2>
+
+                    {/* Description with animation */}
+                    <motion.p 
+                        className="text-lg text-gray-700 max-w-2xl"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 1, ease: "easeOut", delay: 0.6 }}
                     >
-                        <FiSend size={20} />
-                    </button>
+                        Wondering how much a medical procedure will cost? Curious about insurance coverage or 
+                        billing codes? I'm here to help! Just ask me a question like this:
+                    </motion.p>
+
+                    {/* Typing effect example (delayed start) */}
+                    <motion.div 
+                        className="text-xl font-medium text-gray-800 italic"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 1, ease: "easeOut", delay: 1.2 }} // Appears before typing starts
+                    >
+                        {exampleText} {/* Typing effect text */}
+                        <span className="animate-blink">|</span> {/* Cursor Effect */}
+                    </motion.div>
+
+                    {/* Input Form */}
+                    <div className="flex justify-center w-full">
+                        <div className="flex items-center bg-gray-700 p-3 rounded-[1.5rem] w-full max-w-3xl">
+                            <form className="flex-grow">
+                                <textarea
+                                    ref={inputRef}
+                                    value={input}
+                                    onChange={(e) => setInput(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter" && !e.shiftKey) {
+                                            e.preventDefault();
+                                            handleSubmit(e); // Calls the submit function when enter key is pressed
+                                        }
+                                    }}
+                                    onInput={(e) => {
+                                        e.target.style.height = "40px";
+                                        e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
+                                        e.target.scrollTop = 0;
+                                        e.target.style.overflow = e.target.value ? "auto" : "hidden";
+                                    }}
+                                    placeholder="Message Healthcare Cost Assistant..."
+                                    className="w-full bg-transparent text-white placeholder-gray-400 focus:outline-none px-4 resize-none overflow-hidden min-h-[40px] max-h-[120px] leading-[1.5rem] py-[10px] align-middle"
+                                    rows={1}
+                                />
+                            </form>
+                            <button
+                                onClick={handleSubmit}
+                                className="ml-3 p-3 bg-gray-600 hover:bg-gray-700 text-white rounded-full transition-all"
+                            >
+                                <FiSend size={20} />
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-    
-            {/* Sidebar: Chat History */}
-            {sidebarOpen && (
-                <div
-                    className="w-2/3 p-6 bg-gray-700 text-gray-200 shadow-lg ml-5 shadow-xl transition-all duration-300 ease-in-out rounded-lg ease-in-out h-[calc(100vh-15rem)] overflow-y-auto"
-                >
-                    {/* Chat History */}
-                    <h2 className="text-xl font-semibold mb-4">Chat History</h2>
-                    <ul className="overflow-y-auto h-full">
+            ) : (
+                // Chat Interface
+                <div className="flex flex-col w-full max-w-3xl mx-auto pt-20">
+                    {/* Chat Messages Container - Takes Remaining Space Above Input Bar */}
+                    <div className="flex-1 w-full max-w-3xl mx-auto space-y-4 pb-28">
                         {messages.map((msg, index) => (
-                            <li key={index} className="mb-2 p-3 rounded-lg bg-gray-800">
-                                <strong>{msg.sender === 'user' ? 'You' : 'Bot'}:</strong>
-                                <p>{msg.text}</p>
-                            </li>
+                            <div key={index} className={`w-full max-w-3xl flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                {msg.sender === 'user' ? (
+                                    <div className="bg-gray-700 text-gray-50 p-2.5 rounded-xl shadow-lg max-w-[90%] break-words">
+                                        {msg.text}
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center space-x-2 max-w-[90%]">
+                                        {/* Show spinner if loading */}
+                                        {msg.loading && (
+                                            <div className="loader w-4 h-4 border-2 border-gray-700 border-t-transparent rounded-full animate-spin"></div>
+                                        )}
+                                        {/* Ensure text takes full available width */}
+                                        <div className="bg-transparent px-2 py-1 text-left break-words flex-1">
+                                            {msg.text}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         ))}
-                    </ul>
+                        <div ref={chatEndRef} />
+                    </div>
+
+                    {/* FIXED Input Bar at Bottom */}
+                    <div className="fixed bottom-0 left-0 w-full flex justify-center bg-gray-50 py-4 shadow-lg">
+                        <div className="flex items-center bg-gray-700 p-3 rounded-[1.5rem] w-full max-w-3xl">
+                            <form onSubmit={handleSubmit} className="flex-grow">
+                                <textarea
+                                    ref={inputRef}
+                                    value={input}
+                                    onChange={handleInputChange}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter" && !e.shiftKey) {
+                                            e.preventDefault();
+                                            handleSubmit(e); // Calls the submit function when enter key is pressed
+                                        }
+                                    }}
+                                    onInput={(e) => {
+                                        e.target.style.height = "40px";
+                                        e.target.style.height = `${Math.min(e.target.scrollHeight, 100)}px`;
+                                        e.target.scrollTop = 0;
+                                        e.target.style.overflow = e.target.value ? "auto" : "hidden";
+                                    }}
+                                    placeholder="Message Healthcare Cost Assistant..."
+                                    className="w-full bg-transparent text-white placeholder-gray-400 focus:outline-none px-4 resize-none overflow-hidden min-h-[40px] max-h-[100px] leading-[1.5rem] py-[10px] align-middle"
+                                    rows={1}
+                                />
+                            </form>
+                            <button
+                                onClick={handleSubmit}
+                                className="ml-3 p-3 bg-gray-600 hover:bg-gray-700 text-white rounded-full transition-all"
+                            >
+                                <FiSend size={20} />
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

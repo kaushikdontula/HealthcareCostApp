@@ -56,7 +56,7 @@ export const Home = () => {
 
   const handleNavigation = () => {
     if (isSignedIn) {
-      router.push("/dashboard");
+      router.push("/chatbot");
     } else {
       router.push("/sign-in");
     }
@@ -111,6 +111,28 @@ export const Home = () => {
       avatar: "👨‍⚕️",
       role: "Cardiologist",
       text: "Finally, I can have honest conversations with my patients about the financial aspects of their care without guesswork."
+    }
+  ];
+
+  // Mission Statement Cards
+  const missionCards = [
+    {
+      id: "1",
+      title: "Empower with Knowledge",
+      description: "We aim to eliminate the confusion around healthcare pricing by making it easy for anyone to understand.",
+      color: "text-blue-500",
+    },
+    {
+      id: "2",
+      title: "Shed Light on Healthcare Pricing",
+      description: "Healthcare pricing in the U.S. is unnecessarily complicated. We're here to show users the magnitude of the problem.",
+      color: "text-cyan-500",
+    },
+    {
+      id: "3",
+      title: "Comprehensive Data and Analysis",
+      description: "Our platform provides detailed data analysis and various types of charts that help users compare healthcare prices.",
+      color: "text-green-500",
     }
   ];
 
@@ -563,8 +585,6 @@ export const Home = () => {
             </motion.div>
           </div>
         </div>
-
-        
       </div>
 
       {/* Footer */}
