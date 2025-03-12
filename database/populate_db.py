@@ -14,9 +14,19 @@ from sqlalchemy.orm import sessionmaker, clear_mappers, declarative_base
 from data_processing.Models.MrfDbModels import (Provider, Pricing, Service, ProviderDetails, Company, Plan, ProviderService, Base)
 from data_processing.Repos.MrfRepo import ProviderRepo, PricingRepo, ServiceRepo, CompanyRepo, PlanRepo, ProviderDetailsRepo, ProviderServiceRepo
 
-# file_path = "mrf_files/2025-02-01_NEW_NW-COMMERCIAL-01_in-network-rates.json"
-file_path = "mrf_files/2025-02-01_KPIC_MA-COMMERCIAL_in-network-rates.json"
 
+def main():
+    setup_logging("database/populate_log.txt")
+    start_time = time.time()
+
+    file_paths = ["mrf_files/2025-02-01_KFHP_GA-COMMERCIAL_in-network-rates.json",
+                "mrf_files/2025-02-01_KPIC_MA-COMMERCIAL_in-network-rates.json",
+                  "mrf_files/2025-02-01_moda_0174_in-network-rates.json",]
+    for file_path in file_paths:
+        process_file(file_path)
+    logging.info(f"All done! That took {time.time() - start_time} seconds.")
+
+        
 
 def setup_logging(log_file: str) -> None:
     """
@@ -34,60 +44,46 @@ def setup_logging(log_file: str) -> None:
         handlers=targets,
     )
 
-# pycharm
+def get_company_name(file_path) -> str:
+    if (file_path == "mrf_files/2025-02-01_NEW_NW-COMMERCIAL-01_in-network-rates.json"
+        or file_path == "mrf_files/2025-02-01_KPIC_MA-COMMERCIAL_in-network-rates.json"
+        or file_path == "mrf_files/2025-02-01_KFHP_GA-COMMERCIAL_in-network-rates.json"):
+        return "Kaiser Permanente"
+    return "Moda"
 
-def main():
-    setup_logging("database/populate_log.txt")
-    logging.info("Starting to populate the database...this will take a while!")
 
-    provider_service_arr = []
-    start_time = time.time()
-    provider_repo = ProviderRepo("healthcare_pricing.db") 
+def process_file(file_path):
+    logging.info(f"Starting to populate the database for {file_path}!")
+
+    company_repo = CompanyRepo("healthcare_pricing.db") 
+    company =  Company(name=get_company_name(file_path))
+    company_in_db = company_repo.add_company(company)
+
+    plan_name = mrf_processor.read_partial_json(file_path, 10)
+
+    plan_repo = PlanRepo("healthcare_pricing.db")
+    plan = Plan(company_id = company_in_db.company_id, name=plan_name)
+    plan_repo.add_plan(plan)
+    plan_id = plan.plan_id
     provder_arr = mrf_processor.get_array_from_key(file_path, "provider_references", limit=None)
-    logging.info("Provider Array extracted, turning into objects....")
-    provider_objs = mrf_processor.provider_data_objects(provder_arr, "Kaiser Mid Atlantic")
+    logging.info("Provider Array extracted, turning into objects.")
+    mrf_processor.provider_data_objects(provder_arr, "Kaiser Mid Atlantic")
     logging.info("Objects done, adding to DB")
 
-    provider_repo.add_providers(provider_objs)
-    logging.info("Providers done. Starting Services.")
 
-    # provider_details_repo = ProviderDetailsRepo("healthcare_pricing.db")
-    # provider_details_objs = []
-    # for prov in provider_objs:
-    #     provider_details_objs.append(ProviderDetails(provider_id=prov.provider_id))
-    
-    # provider_details_repo.add_provider_details(provider_details_objs)
-    # logging.info("Done with Provider Details, starting services/pricing/provider_services")
+    logging.info("Providers done. Starting Services.")
     
     service_arr = mrf_processor.get_array_from_key(file_path, "in_network", limit=None)
     logging.info("Service array done, turning into objects, inserting.")
-    mrf_processor.service_data_to_objects(service_arr, provider_service_arr)
-
-    logging.info("Done inserting services, prices, about to start provider services.")
-    # print(f"provider_service_arr: {provider_service_arr}")
-    provider_repo = ProviderServiceRepo("healthcare_pricing.db") 
-    prov_serv_obj_arr = []
-    for prov_serv in provider_service_arr:
-        prov_serv_obj_arr.append(ProviderService(service_id=prov_serv["service_id"],
-                                                 provider_id=prov_serv["provider"],
-                                                 pricing_id=prov_serv["pricing_id"]))
-        
-    provider_repo.add_provider_services(prov_serv_obj_arr)
-
-    logging.info("Done adding provider services. About to add companies.")
-    
-    
-
-    company_repo = CompanyRepo("healthcare_pricing.db") 
-    company =  Company(name="Kaiser Mid Atlantic")
-    company_repo.add_company(company)
-
-    logging.info("Done adding companies")
-    
+    mrf_processor.service_data_to_objects(service_arr, plan_id)   
     
 
 
-    logging.info(f"All done! That took {time.time() - start_time} seconds.")
+# pycharm
 
 
-main()
+    
+
+
+if __name__ == "__main__":
+    main()
