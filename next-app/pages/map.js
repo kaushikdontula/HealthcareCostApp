@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Navbar from './components/navbar';
 import Footer from './components/footer'; 
-import CostMap from './components/CostMap'; 
+import CostMap from './components/map_component'; 
 import { motion } from 'framer-motion';
 
 export default function MapPage() {

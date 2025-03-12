@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Navbar from "./components/navbar";
 import Footer from "./components/footer";
-import DataTable from "./components/table";
+import DataTable from "./components/table_component";
 
 export default function TabularDataPage() {
     const [tableData, setTableData] = useState([]);
