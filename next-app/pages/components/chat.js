@@ -108,23 +108,24 @@ export default function ChatComponent() {
             {/* Chat Container - Remove inner scrollbar */}
             <div className="relative flex flex-col bg-gray-50 w-full max-w-[70%] rounded-xl p-2">
                 {/* Chat Messages Container - Remove `overflow-y-auto` */}
-                <div ref={chatContainerRef} className="flex-1 space-y-4 w-full pb-[5rem]">
+                <div ref={chatContainerRef} className="flex-1 w-full max-w-3xl mx-auto space-y-4 pb-[5rem]">
                     {messages.map((msg, index) => (
                         <div
                             key={index}
-                            className={`p-4 w-full md:max-w-md shadow-lg transition-all duration-300 rounded-xl flex items-center ${
-                                msg.sender === 'user'
-                                    ? 'bg-gray-100 text-gray-800 self-end ml-auto rounded-br-none' // User msg
-                                    : 'bg-gray-700 text-gray-100 self-start rounded-bl-none' // Bot msg
+                            className={`w-full max-w-3xl flex ${
+                                msg.sender === 'user' ? 'justify-end' : 'justify-start'
                             }`}
                         >
-                            {msg.sender === 'bot' && isLoading && msg.loading ? (
-                                <div className="flex items-center space-x-2">
-                                    <div className="w-4 h-4 border-2 border-gray-100 border-t-transparent animate-spin rounded-full"></div>
-                                    <span>{msg.text}</span>
+                            {msg.sender === 'user' ? (
+                                // User message in a bubble, aligned right
+                                <div className="bg-gray-500 text-gray-50 p-4 rounded-xl shadow-lg max-w-[90%] break-words">
+                                    {msg.text}
                                 </div>
                             ) : (
-                                msg.text
+                                // Bot message, full-width until overflowing
+                                <p className="text-gray-900 bg-transparent px-2 py-1 max-w-[90%] break-words text-left">
+                                    {msg.text}
+                                </p>
                             )}
                         </div>
                     ))}
