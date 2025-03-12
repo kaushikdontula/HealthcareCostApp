@@ -216,9 +216,16 @@ export default function ChatComponent() {
                                         {msg.text}
                                     </div>
                                 ) : (
-                                    <p className="text-gray-900 bg-transparent px-2 py-1 max-w-[90%] break-words text-left">
-                                        {msg.text}
-                                    </p>
+                                    <div className="flex items-center space-x-2 max-w-[90%]">
+                                        {/* Show spinner if loading */}
+                                        {msg.loading && (
+                                            <div className="loader w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                                        )}
+                                        {/* Ensure text takes full available width */}
+                                        <div className="bg-transparent px-2 py-1 text-left break-words flex-1">
+                                            {msg.text}
+                                        </div>
+                                    </div>
                                 )}
                             </div>
                         ))}

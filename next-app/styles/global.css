@@ -33,10 +33,18 @@ textarea::-webkit-scrollbar {
    background: transparent !important; /* Removes background */
  }
  
- /* Optional: Make the scrollbar more subtle */
+ /* Make the scrollbar more subtle */
  textarea:hover::-webkit-scrollbar-thumb {
    background: rgba(180, 180, 180, 0.8);
  } 
+
+ @keyframes blink {
+  50% { opacity: 0; }
+}
+
+.animate-blink {
+  animation: blink 1s infinite;
+}
 
 @layer base {
   :root {
