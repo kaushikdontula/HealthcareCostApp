@@ -91,7 +91,7 @@ export default function ChatComponent() {
         // Show loading message
         setMessages((prevMessages) => [
             ...prevMessages,
-            { text: "Thinking ...", sender: "bot", loading: true }
+            { text: "", sender: "bot", loading: true }
         ]);
     
         try {
@@ -172,7 +172,7 @@ export default function ChatComponent() {
 
                     {/* Input Form */}
                     <div className="flex justify-center w-full">
-                        <div className="flex items-center bg-gray-800 p-3 rounded-[1.5rem] w-full max-w-3xl">
+                        <div className="flex items-center bg-gray-700 p-3 rounded-[1.5rem] w-full max-w-3xl">
                             <form className="flex-grow">
                                 <textarea
                                     ref={inputRef}
@@ -212,14 +212,14 @@ export default function ChatComponent() {
                         {messages.map((msg, index) => (
                             <div key={index} className={`w-full max-w-3xl flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
                                 {msg.sender === 'user' ? (
-                                    <div className="bg-gray-500 text-gray-50 p-2.5 rounded-xl shadow-lg max-w-[90%] break-words">
+                                    <div className="bg-gray-700 text-gray-50 p-2.5 rounded-xl shadow-lg max-w-[90%] break-words">
                                         {msg.text}
                                     </div>
                                 ) : (
                                     <div className="flex items-center space-x-2 max-w-[90%]">
                                         {/* Show spinner if loading */}
                                         {msg.loading && (
-                                            <div className="loader w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                                            <div className="loader w-4 h-4 border-2 border-gray-700 border-t-transparent rounded-full animate-spin"></div>
                                         )}
                                         {/* Ensure text takes full available width */}
                                         <div className="bg-transparent px-2 py-1 text-left break-words flex-1">
@@ -234,7 +234,7 @@ export default function ChatComponent() {
 
                     {/* FIXED Input Bar at Bottom */}
                     <div className="fixed bottom-0 left-0 w-full flex justify-center bg-gray-50 py-4 shadow-lg">
-                        <div className="flex items-center bg-gray-800 p-3 rounded-[1.5rem] w-full max-w-3xl">
+                        <div className="flex items-center bg-gray-700 p-3 rounded-[1.5rem] w-full max-w-3xl">
                             <form onSubmit={handleSubmit} className="flex-grow">
                                 <textarea
                                     ref={inputRef}
