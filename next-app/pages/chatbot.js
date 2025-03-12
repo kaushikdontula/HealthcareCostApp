@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import { useRouter } from 'next/router';
 import Navbar from './components/navbar';
-import ChatComponent from './components/chat';
+import ChatComponent from './components/chat_component';
 import Footer from './components/footer';
 import { motion, AnimatePresence } from 'framer-motion';
 import 'mapbox-gl/dist/mapbox-gl.css';

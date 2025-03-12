@@ -35,4 +35,9 @@ urlpatterns = [
 
     ## Chatbot ##
     path('api/chat/', ChatbotView.as_view(), name='chatbot'),
+
+    ## New healthcare pricing comprehensive data endpoints ##
+    path('api/healthcare-pricing/paginated/', views.HealthcarePricingView.as_view(), name='healthcare_pricing_paginated'),
+    path('api/healthcare-pricing/export/', views.ExportHealthcarePricingView.as_view(), name='healthcare_pricing_export'),
+
 ]

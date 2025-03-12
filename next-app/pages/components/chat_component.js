@@ -197,7 +197,8 @@ export default function ChatComponent() {
                             </form>
                             <button
                                 onClick={handleSubmit}
-                                className="ml-3 p-3 bg-gray-600 hover:bg-gray-700 text-white rounded-full transition-all"
+                                className="ml-3 p-3 bg-gray-600 hover:bg-gray-700 text-white rounded-full transition-all outline-none 
+                                        hover:outline hover:outline-2 hover:outline-orange-500"
                             >
                                 <FiSend size={20} />
                             </button>
@@ -259,7 +260,7 @@ export default function ChatComponent() {
                             </form>
                             <button
                                 onClick={handleSubmit}
-                                className="ml-3 p-3 bg-gray-600 hover:bg-gray-700 text-white rounded-full transition-all"
+                                className="ml-3 p-3 bg-gray-600 hover:outline-orange-500 text-white rounded-full transition-all"
                             >
                                 <FiSend size={20} />
                             </button>
