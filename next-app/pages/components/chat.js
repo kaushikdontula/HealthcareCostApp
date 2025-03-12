@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { motion } from "framer-motion";
 import { FiMenu, FiX, FiSend } from 'react-icons/fi';
 import { FaRobot } from 'react-icons/fa'; // Robot icon
 
@@ -9,6 +10,38 @@ export default function ChatComponent() {
     const chatContainerRef = useRef(null); // Ref for the chat window container
     const [botTyping, setBotTyping] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [exampleText, setExampleText] = useState(''); // Holds the typed effect example text
+
+    const exampleQuestion = "How much does an MRI cost with insurance?";
+
+    // Typing effect for the example question
+    useEffect(() => {
+        let index = 0;
+        const startTypingDelay = 1800; // 1.8s delay to allow animations to finish
+
+        const startTyping = setTimeout(() => {
+            const interval = setInterval(() => {
+                if (index < exampleQuestion.length) {
+                    setExampleText(exampleQuestion.slice(0, index + 1));
+                    index++;
+                } else {
+                    clearInterval(interval);
+                }
+            }, 50);
+        }, startTypingDelay);
+
+        return () => clearTimeout(startTyping);
+    }, []);
+
+
+    // Ensure page scrolls to last message
+    useEffect(() => {
+        if (messages.length > 0) {
+            setTimeout(() => {
+                chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+            }, 100); // Ensures rendering completes before scrolling
+        }
+    }, [messages]);
 
     // Simulate typing effect for bot messages
     const simulateTypingEffect = (fullText, speed = 50) => {
@@ -90,35 +123,68 @@ export default function ChatComponent() {
         
     const inputRef = useRef(null);
 
-    // Ensure page scrolls to last message
-    useEffect(() => {
-        if (messages.length > 0) {
-            setTimeout(() => {
-                chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-            }, 100); // Ensures rendering completes before scrolling
-        }
-    }, [messages]);
-
     return (
         <div className="relative flex flex-col w-full min-h-screen mx-aut p-6">
             {messages.length === 0 ? (
                 // Initial Welcome State
-                <div className="flex flex-col items-center justify-center text-center space-y-6 h-screen">
-                    <h1 className="text-2xl font-semibold text-gray-900">What can I help with?</h1>
+                <div className="flex flex-col items-center justify-center text-center space-y-6 h-screen -mt-12">
+                    {/* Title with animation */}
+                    <motion.h1 
+                        className="text-4xl font-bold text-gray-900"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8, ease: "easeOut" }}
+                    >
+                        AI Healthcare Cost Assistant
+                    </motion.h1>
+
+                    {/* Subtitle with subtle animation */}
+                    <motion.h2 
+                        className="text-xl text-gray-600 font-medium"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 1, ease: "easeOut", delay: 0.3 }}
+                    >
+                        Get clear answers on medical pricing, insurance, and billing.
+                    </motion.h2>
+
+                    {/* Description with animation */}
+                    <motion.p 
+                        className="text-lg text-gray-700 max-w-2xl"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 1, ease: "easeOut", delay: 0.6 }}
+                    >
+                        Wondering how much a medical procedure will cost? Curious about insurance coverage or 
+                        billing codes? I'm here to help! Just ask me a question like this:
+                    </motion.p>
+
+                    {/* Typing effect example (delayed start) */}
+                    <motion.div 
+                        className="text-xl font-medium text-gray-800 italic"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 1, ease: "easeOut", delay: 1.2 }} // Appears before typing starts
+                    >
+                        {exampleText} {/* Typing effect text */}
+                        <span className="animate-blink">|</span> {/* Cursor Effect */}
+                    </motion.div>
+
+                    {/* Input Form */}
                     <div className="flex justify-center w-full">
                         <div className="flex items-center bg-gray-800 p-3 rounded-[1.5rem] w-full max-w-3xl">
-                            <form onSubmit={handleSubmit} className="flex-grow">
+                            <form className="flex-grow">
                                 <textarea
                                     ref={inputRef}
                                     value={input}
-                                    onChange={handleInputChange}
+                                    onChange={(e) => setInput(e.target.value)}
                                     onInput={(e) => {
                                         e.target.style.height = "40px";
                                         e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
                                         e.target.scrollTop = 0;
                                         e.target.style.overflow = e.target.value ? "auto" : "hidden";
                                     }}
-                                    placeholder="Ask anything..."
+                                    placeholder="Message Healthcare Cost Assistant..."
                                     className="w-full bg-transparent text-white placeholder-gray-400 focus:outline-none px-4 resize-none overflow-hidden min-h-[40px] max-h-[120px] leading-[1.5rem] py-[10px] align-middle"
                                     rows={1}
                                 />
