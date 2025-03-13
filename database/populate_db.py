@@ -16,17 +16,21 @@ from data_processing.Repos.MrfRepo import ProviderRepo, PricingRepo, ServiceRepo
 
 
 def main():
-    setup_logging("database/populate_log.txt")
+    setup_logging("populate_log.txt")
     start_time = time.time()
 
-    file_paths = ["mrf_files/2025-02-01_KFHP_GA-COMMERCIAL_in-network-rates.json",
-                "mrf_files/2025-02-01_KPIC_MA-COMMERCIAL_in-network-rates.json",
-                  "mrf_files/2025-02-01_moda_0174_in-network-rates.json",]
+    # file_paths = ["mrf_files/2025-02-01_KFHP_GA-COMMERCIAL_in-network-rates.json",
+    #             "mrf_files/2025-02-01_KPIC_MA-COMMERCIAL_in-network-rates.json",
+    #               "mrf_files/2025-02-01_moda_0174_in-network-rates.json",]
+    
+    file_paths = ["mrf_files/2025-02-01_KPIC_MA-COMMERCIAL_in-network-rates.json",
+            "mrf_files/2025-03-01_KFHP_GA-COMMERCIAL_in-network-rates.json",
+            "mrf_files/2025-03-01_KPIC_GA-COMMERCIAL_in-network-rates.json",]
+
     for file_path in file_paths:
         process_file(file_path)
     logging.info(f"All done! That took {time.time() - start_time} seconds.")
 
-        
 
 def setup_logging(log_file: str) -> None:
     """
