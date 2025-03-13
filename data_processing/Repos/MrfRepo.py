@@ -202,7 +202,12 @@ class ServiceRepo(BaseRepo):
                 session.refresh(existing_service)
                 session.expunge_all()
                 return existing_service
-
+    def get_service_by_cpt(self, cpt: int) -> Service:
+        with self.Session.begin() as session:
+            service = session.query(Service).filter_by(cpt_code=cpt).first()
+            session.expunge_all()
+            return service
+        
 class CompanyRepo(BaseRepo):
 
     def add_company(self, company: Company) -> int:

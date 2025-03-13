@@ -25,6 +25,8 @@ top_codes = {"99214", "99213", "99232", "66984", "99223", "99233", "99285", "920
 
 def provider_data_objects(data, name) -> List[Provider]:
     obj_arr = []
+    provider_repo = ProviderRepo("healthcare_pricing.db") 
+
     for i in data:
         provider_group_id = i["provider_group_id"]
 
@@ -33,21 +35,25 @@ def provider_data_objects(data, name) -> List[Provider]:
                 providers = j
                 tin = int(providers["tin"]["value"])
                 for val in providers["npi"]:
-                    obj_arr.append(Provider(provider_group_id=provider_group_id, name=name, npi=val, tin=tin))
+                    provider_repo.add_provider(Provider(provider_group_id=provider_group_id, name=name, npi=val, tin=tin))
 
     return obj_arr
 
-def service_data_to_objects(data, provider_service_arr) -> None:
+def service_data_to_objects(data, plan_id) -> None:
     obj_arr = []
     service_repo = ServiceRepo("healthcare_pricing.db") 
     pricing_repo = PricingRepo("healthcare_pricing.db")
     provider_repo = ProviderServiceRepo("healthcare_pricing.db") 
+
     for i in data:
         rates = i["negotiated_rates"]
         description = i["description"]
-        
-        Mrf_obj = Service(cpt_code=i["billing_code"], description=description, name=i["name"])
-        service_repo.add_service(Mrf_obj)
+        Mrf_obj = None
+        Mrf_obj = service_repo.get_service_by_cpt(i["billing_code"])
+        if(Mrf_obj is None):
+            Mrf_obj = Service(cpt_code=i["billing_code"], description=description, name=i["name"])
+            service_repo.add_service(Mrf_obj)
+       
         for j in rates:
                 pricing_arr = (pricing_data_to_objects(j["negotiated_prices"]))        
                 for price in pricing_arr:
@@ -55,7 +61,8 @@ def service_data_to_objects(data, provider_service_arr) -> None:
                     for provider in j["provider_references"]:
                         provider_repo.add_provider_service(ProviderService(service_id=Mrf_obj.service_id,
                                                  provider_id=provider,
-                                                 pricing_id=price.pricing_id))
+                                                 pricing_id=price.pricing_id,
+                                                 plan_id=plan_id))
 
                 
                     
@@ -76,7 +83,9 @@ def read_partial_json(file_path, limit=10):
         parser = ijson.parse(file)
         count = 0
         for prefix, event, value in parser:
-            print(f"{prefix}:{event}:{value}")
+            if(prefix == "reporting_entity_name"):
+                return value
+
             count += 1
             if count >= limit:
                 break
@@ -97,3 +106,14 @@ def get_array_from_key(file_path, array_key, limit=None) -> List:
             i+=1
     return result
     
+def get_plan(file_path) -> str:
+    with open(file_path, 'rb') as file:
+        object = ijson.items(file, 'reporting_entity_name.item')
+        i = 0
+        new_obj = None
+        for obj in (object):
+            
+            new_obj = (obj)
+        print(new_obj)
+        
+    return object

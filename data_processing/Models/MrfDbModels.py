@@ -82,7 +82,7 @@ class ProviderService(Base):
 
     provider_service_id = mapped_column(Integer, primary_key=True, autoincrement=True)
     service_id = mapped_column(Integer, ForeignKey('Services.service_id'), nullable=False)
-    provider_id = mapped_column(Integer, ForeignKey('Providers.provider_group_id'), nullable=False)
+    provider_id = mapped_column(Integer, ForeignKey('Providers.provider_id'), nullable=False)
     pricing_id = mapped_column(Integer, ForeignKey('Pricing.pricing_id'), nullable=False)
     plan_id = mapped_column(Integer, ForeignKey('Plans.plan_id'), nullable=True)
 

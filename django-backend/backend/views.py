@@ -13,10 +13,51 @@ def health_check(request):
     return JsonResponse({"status": "ok", "message": "Django is running"})
 
 # Standard pagination class
+# Improved pagination class with better error handling
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 25
     page_size_query_param = 'page_size'
     max_page_size = 100
+    
+    def paginate_queryset(self, queryset, request, view=None):
+        """
+        Override to handle pagination errors by returning the first page
+        instead of raising an exception.
+        """
+        try:
+            return super().paginate_queryset(queryset, request, view)
+        except Exception as e:
+            # Log the exception
+            print(f"Pagination error: {str(e)}")
+            
+            # Force page to 1
+            # Make query params mutable to modify
+            request.query_params._mutable = True
+            request.query_params['page'] = '1'
+            request.query_params._mutable = False
+            
+            # Set flag for response
+            self.was_redirected = True
+            
+            # Try with page 1
+            return super().paginate_queryset(queryset, request, view)
+    
+    def get_paginated_response(self, data):
+        """
+        Override to include a detail message when redirected to page 1.
+        """
+        response_data = {
+            'count': self.page.paginator.count,
+            'next': self.get_next_link(),
+            'previous': self.get_previous_link(),
+            'results': data
+        }
+        
+        # Add message if we were redirected
+        if hasattr(self, 'was_redirected') and self.was_redirected:
+            response_data['detail'] = "The requested page doesn't exist. Showing first page instead."
+        
+        return Response(response_data)
 
 # Existing API endpoints - UNCHANGED
 class ServicesList(APIView):
@@ -179,7 +220,7 @@ class HealthcarePricingView(APIView):
                 expiration_date = None
                 
             try:
-                provider = models.Providers.objects.get(provider_group_id=provider_service.provider_id)
+                provider = models.Providers.objects.get(provider_id=provider_service.provider_id)
                 provider_id = provider.provider_id
                 provider_name = provider.name
             except models.Providers.DoesNotExist:
