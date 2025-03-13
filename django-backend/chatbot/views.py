@@ -7,10 +7,28 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.views import View
+from backend import models 
+from django.db.models import Q, Avg, Min, Max
+import logging
 
+logger = logging.getLogger(__name__)  # Add logging
 
 # Initialize OpenAI client
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+# Initialize conversation history at the start
+messages = [
+    {
+        "role": "system",
+        "content": (
+            "You are an AI healthcare assistant with access to cost data for various procedures. "
+            "You provide pricing information based on CPT codes, which are used to classify medical procedures and services. "
+            "If a user asks about a procedure, you should attempt to match it to a CPT code in the database. "
+            "If multiple CPT codes exist for the procedure, list them and ask the user to clarify. "
+            "Once a CPT code is identified, retrieve and summarize its pricing data."
+        )
+    }
+]
 
 # Load JSON Data
 def load_mrf_file():
@@ -24,14 +42,24 @@ def load_mrf_file():
     with open(json_file_path, 'r') as f:
         return json.load(f)
 
-def extract_billing_code(assistant_message):
-    # Check if the key phrase is present in the message
-    if "Analyzing cost data for MS-DRG code" in assistant_message:
-        # Extract the 3-digit MS-DRG code
-        match = re.search(r'\b\d{3}\b', assistant_message)
-        if match:
-            return match.group(0)
-    return None
+def extract_cpt_code(user_message):
+    # Search for a 5-digit CPT code in user input
+    match = re.search(r'\b\d{5}\b', user_message)
+    if match:
+        return match.group(0)  # Found a CPT code, return it
+
+    # If no CPT code found, search for procedures by name
+    services = models.Services.objects.filter(Q(name__icontains=user_message) | Q(description__icontains=user_message))
+
+    if services.exists():
+        # If multiple CPT codes exist, return all and ask user to clarify
+        cpt_codes = list(set(services.values_list('cpt_code', flat=True)))  # Remove duplicates
+        if len(cpt_codes) > 1:
+            return f"I found multiple CPT codes for {user_message}: {', '.join(cpt_codes)}. Please specify which one you're interested in."
+
+        return cpt_codes[0]  # Return single CPT code
+
+    return None  # No match found
 
 
 def calculate_average_cost(json_data, billing_code):
@@ -75,66 +103,72 @@ def calculate_cost_range(json_data, billing_code):
 
     return min_cost, max_cost
 
-def respond_to_query(messages):
+def respond_to_query(user_input):
+    try:
+        global messages  # Use global variable to persist conversation
 
-    # sends a request to the OpenAI API to generate a response from the GPT-3.5-turbo
-    response = client.chat.completions.create(
+        # Extract CPT code or find by name
+        cpt_code = extract_cpt_code(user_input)
 
-        # contains conversation history, its a list of dictionaries where each dictionary has a role (system, user, assistant) and content
-        messages=messages,
-        model="gpt-4-turbo" #gpt-3.5-turbo
-    )
+        if cpt_code:
+            # If extract_cpt_code returns a clarification message, return that
+            if isinstance(cpt_code, str) and "I found multiple CPT codes" in cpt_code:
+                return cpt_code  # Ask the user for clarification
 
-    # gets content of message to display
-    return response.choices[0].message.content
+            # Query database for service information
+            services = models.Services.objects.filter(cpt_code=cpt_code)
 
+            if services.exists():
+                service_names = ", ".join([s.name for s in services])
 
-# Initialize conversation history
-messages = [
-    {
-        "role": "system",
-        "content": (
-            "You are an AI healthcare assistant. You have access to cost data for various procedures from different providers. "
-            "You have knowledge of all 998 MS-DRG codes, the user will tell you about a procedure. If there are multiple possible MS-DRG codes it could be, you should list out all possible MS-DRG codes and ask the user to clarify if needed. If there is only one possibility, still ask the user to confirm"
-            "If the user does not know which MS-DRG code correlates best with their procedure, give them descriptions along with the codes to help narrow down"
-            "Once you have finalized which MS-DRG code it is from the user with certainty, say the words 'Analyzing cost data for MS-DRG code ' "
-        )
-    }
-]
+                # Collect all matching service IDs
+                service_ids = [s.service_id for s in services]
+
+                # Fetch all pricing related to these services
+                pricing_entries = models.Pricing.objects.filter(
+                    pricing_id__in=models.ProviderService.objects.filter(service_id__in=service_ids)
+                    .values_list('pricing_id', flat=True)
+                )
+
+                if pricing_entries.exists():
+                    # Aggregate min, max, and average price across all matching services
+                    pricing_stats = pricing_entries.aggregate(
+                        min_price=Min('negotiated_rate'),
+                        max_price=Max('negotiated_rate'),
+                        avg_price=Avg('negotiated_rate')
+                    )
+
+                    return (
+                        f"I found the procedure **{service_names}** with CPT code {cpt_code}. "
+                        f"The average negotiated rate is **${pricing_stats['avg_price']:.2f}**, "
+                        f"with costs ranging from **${pricing_stats['min_price']:.2f}** to **${pricing_stats['max_price']:.2f}**."
+                    )
+                else:
+                    return f"I found the procedure '{service_names}' (CPT code {cpt_code}), but no pricing data is available."
+
+            else:
+                return f"I couldn't find any procedure matching '{user_input}'. Could you rephrase or provide more details?"
+
+        else:
+            # If no CPT code is found, let OpenAI handle the response
+            messages.append({"role": "user", "content": user_input})
+            response = client.chat.completions.create(
+                messages=messages,
+                model="gpt-4-turbo"
+            )
+            return response.choices[0].message.content
+
+    except Exception as e:
+        logger.error(f"Error processing user query: {e}", exc_info=True)
+        return "I'm sorry, but I ran into an error while processing your request. Please try again."
 
 @method_decorator(csrf_exempt, name='dispatch')
 class ChatbotView(View):
-    json_data = load_mrf_file()
-    if json_data: 
-        print("successfully got json data")
-    else: 
-        print("error getting json data")
-
     def post(self, request):
         user_input = json.loads(request.body).get("user_input", "")
         
-        # Add user input to conversation history
-        messages.append({"role": "user", "content": user_input})
+        # Generate chatbot response with database context
+        assistant_message = respond_to_query(user_input)
 
-        # Generate assistants response
-        assistant_message = respond_to_query(messages)
-
-        # Extract billing code from the assistant's response
-        billing_code = extract_billing_code(assistant_message)
-        print(billing_code)
-
-        if billing_code:
-            json_data = load_mrf_file()
-            avg_price = calculate_average_cost(json_data, billing_code)
-            min_cost, max_cost = calculate_cost_range(json_data, billing_code)
-            
-            if avg_price:
-                cost_summary = (
-                    f"For MS-DRG code {billing_code}, the average cost is ${avg_price:.2f}. "
-                    f"The minimum payment observed is ${min_cost:.2f}, and the maximum payment is ${max_cost:.2f}. "
-                    "Let me know if you'd like further details or assistance!"
-                )
-                messages.append({"role": "assistant", "content": cost_summary})
-                assistant_message += f"\n{cost_summary}"
-
+        # Return the chatbot's response
         return JsonResponse({'assistant_message': assistant_message})
