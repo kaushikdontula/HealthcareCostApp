@@ -8,6 +8,8 @@ regional_mrf_files/
 database/healthcare_pricing.db
 database/populate_log.txt
 
+# DS_Store
+.DS_Store
 
 # C extensions
 *.so

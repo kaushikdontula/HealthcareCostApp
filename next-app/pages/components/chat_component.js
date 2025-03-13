@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion } from "framer-motion";
 import { FiMenu, FiX, FiSend } from 'react-icons/fi';
 import { FaRobot } from 'react-icons/fa'; // Robot icon
+import ReactMarkdown from 'react-markdown';
 
 export default function ChatComponent() {
     const [messages, setMessages] = useState([]);
@@ -224,7 +225,19 @@ export default function ChatComponent() {
                                         )}
                                         {/* Ensure text takes full available width */}
                                         <div className="bg-transparent px-2 py-1 text-left break-words flex-1">
-                                            {msg.text}
+                                            <ReactMarkdown
+                                                components={{
+                                                    h1: ({ children }) => <h1 className="text-2xl font-bold text-gray-900">{children}</h1>,
+                                                    h2: ({ children }) => <h2 className="text-xl font-semibold text-gray-800 mt-3">{children}</h2>,
+                                                    h3: ({ children }) => <h3 className="text-lg font-medium text-gray-700 mt-2">{children}</h3>,
+                                                    p: ({ children }) => <p className="text-gray-600 leading-relaxed">{children}</p>,
+                                                    ul: ({ children }) => <ul className="list-disc list-inside text-gray-600">{children}</ul>,
+                                                    li: ({ children }) => <li className="ml-4">{children}</li>,
+                                                    strong: ({ children }) => <strong className="font-bold text-gray-900">{children}</strong>,
+                                                }}
+                                            >
+                                                {msg.text}
+                                            </ReactMarkdown>
                                         </div>
                                     </div>
                                 )}
@@ -260,7 +273,8 @@ export default function ChatComponent() {
                             </form>
                             <button
                                 onClick={handleSubmit}
-                                className="ml-3 p-3 bg-gray-600 hover:outline-orange-500 text-white rounded-full transition-all"
+                                className="ml-3 p-3 bg-gray-600 hover:bg-gray-700 text-white rounded-full transition-all outline-none 
+                                        hover:outline hover:outline-2 hover:outline-orange-500"
                             >
                                 <FiSend size={20} />
                             </button>
