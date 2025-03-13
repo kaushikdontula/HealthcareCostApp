@@ -111,46 +111,46 @@ def respond_to_query(user_input):
         cpt_code = extract_cpt_code(user_input)
 
         if cpt_code:
-            # If extract_cpt_code returns a clarification message, return that
             if isinstance(cpt_code, str) and "I found multiple CPT codes" in cpt_code:
                 return cpt_code  # Ask the user for clarification
 
-            # Query database for service information
             services = models.Services.objects.filter(cpt_code=cpt_code)
 
             if services.exists():
-                service_names = ", ".join([s.name for s in services])
-
-                # Collect all matching service IDs
-                service_ids = [s.service_id for s in services]
-
-                # Fetch all pricing related to these services
-                pricing_entries = models.Pricing.objects.filter(
-                    pricing_id__in=models.ProviderService.objects.filter(service_id__in=service_ids)
-                    .values_list('pricing_id', flat=True)
-                )
-
-                if pricing_entries.exists():
-                    # Aggregate min, max, and average price across all matching services
-                    pricing_stats = pricing_entries.aggregate(
-                        min_price=Min('negotiated_rate'),
-                        max_price=Max('negotiated_rate'),
-                        avg_price=Avg('negotiated_rate')
+                service_details = []
+                for service in services:
+                    pricing_entries = models.Pricing.objects.filter(
+                        pricing_id__in=models.ProviderService.objects.filter(service_id=service.service_id)
+                        .values_list('pricing_id', flat=True)
                     )
 
-                    return (
-                        f"I found the procedure **{service_names}** with CPT code {cpt_code}. "
-                        f"The average negotiated rate is **${pricing_stats['avg_price']:.2f}**, "
-                        f"with costs ranging from **${pricing_stats['min_price']:.2f}** to **${pricing_stats['max_price']:.2f}**."
-                    )
-                else:
-                    return f"I found the procedure '{service_names}' (CPT code {cpt_code}), but no pricing data is available."
+                    if pricing_entries.exists():
+                        pricing_stats = pricing_entries.aggregate(
+                            min_price=Min('negotiated_rate'),
+                            max_price=Max('negotiated_rate'),
+                            avg_price=Avg('negotiated_rate')
+                        )
+
+                        # Add paragraph before structured data
+                        service_details.append(
+                            f"For the **{service.name}** (CPT Code: **{cpt_code}**), the average negotiated cost is **${pricing_stats['avg_price']:.2f}**. "
+                            f"Pricing varies based on provider, location, and insurance coverage. Below is a breakdown of cost information:\n\n"
+                            f"### **{service.name}** (CPT Code: **{cpt_code}**)\n"
+                            f"- **Average Cost:** ${pricing_stats['avg_price']:.2f}\n"
+                            f"- **Cost Range:** ${pricing_stats['min_price']:.2f} - ${pricing_stats['max_price']:.2f}\n"
+                        )
+                    else:
+                        service_details.append(
+                            f"For **{service.name}** (CPT Code: **{cpt_code}**), pricing data is not available at this time. "
+                            "Costs can vary depending on location and provider.\n"
+                        )
+
+                return "\n\n".join(service_details)
 
             else:
                 return f"I couldn't find any procedure matching '{user_input}'. Could you rephrase or provide more details?"
 
         else:
-            # If no CPT code is found, let OpenAI handle the response
             messages.append({"role": "user", "content": user_input})
             response = client.chat.completions.create(
                 messages=messages,
