@@ -106,13 +106,13 @@ class PriceDataView(APIView):
 
         # Gather all ProviderService rows for those service IDs
         service_ids = services_qs.values_list('service_id', flat=True)
-        ps_qs = models.ProviderService.objects.filter(service__in=service_ids)
+        ps_qs = models.ProviderService.objects.filter(service_id__in=service_ids)
         if not ps_qs.exists():
             return Response({"detail": f"No pricing found for CPT code {code}"},
                             status=status.HTTP_404_NOT_FOUND)
 
         # From ProviderService, gather Pricing objects
-        pricing_ids = ps_qs.values_list('pricing__pricing_id', flat=True)
+        pricing_ids = ps_qs.values_list('pricing_id', flat=True)
         pricing_qs = models.Pricing.objects.filter(pricing_id__in=pricing_ids)
         if not pricing_qs.exists():
             return Response({"detail": f"No pricing entries found for CPT code {code}"},
@@ -145,6 +145,110 @@ class PriceDataView(APIView):
         }
 
         return Response(response_data, status=status.HTTP_200_OK)
+
+class AllDataForCPTCode(APIView):
+    """
+    GET /api/cpt_data_detailed/<code>:
+      - Returns all ProviderService entries for the given CPT code,
+        including provider, plan, company, pricing, etc.
+    """
+    def get(self, request, code):
+        # Validate CPT code
+        if not code:
+            return Response({"detail": "Missing code"},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        # find all Services with this CPT code
+        services_qs = models.Services.objects.filter(cpt_code=code)
+        if not services_qs.exists():
+            return Response({"detail": f"CPT code {code} not found"},
+                            status=status.HTTP_404_NOT_FOUND)
+
+        # gather all ProviderService rows for those service IDs
+        service_ids = services_qs.values_list('service_id', flat=True)
+        ps_qs = models.ProviderService.objects.filter(service_id__in=service_ids)
+        if not ps_qs.exists():
+            return Response({"detail": f"No pricing found for CPT code {code}"},
+                            status=status.HTTP_404_NOT_FOUND)
+
+        # build the response data with all linked info
+        results = []
+        for ps in ps_qs:
+            # Get the Service object
+            service_obj = services_qs.filter(service_id=ps.service_id).first()
+            service_name = service_obj.name if service_obj else "Unknown Service"
+            service_desc = service_obj.description if service_obj else ""
+            service_cpt = service_obj.cpt_code if service_obj else "Unknown"
+
+            # get the Pricing object
+            pricing_obj = None
+            try:
+                pricing_obj = models.Pricing.objects.get(pricing_id=ps.pricing_id)
+            except models.Pricing.DoesNotExist:
+                pass
+            negotiated_rate = pricing_obj.negotiated_rate if pricing_obj else 0.0
+            negotiated_type = pricing_obj.negotiated_type if pricing_obj else "Unknown"
+            billing_class = pricing_obj.billing_class if pricing_obj else "Unknown"
+            expiration_date = pricing_obj.expiration_date if pricing_obj else None
+
+            # get the Provider object
+            provider_obj = None
+            try:
+                provider_obj = models.Providers.objects.get(provider_id=ps.provider_id)
+            except models.Providers.DoesNotExist:
+                pass
+            provider_name = provider_obj.name if provider_obj else "Unknown Provider"
+            provider_npi = provider_obj.npi if provider_obj else None
+            provider_tin = provider_obj.tin if provider_obj else None
+
+            # get the Plan & Company object
+            plan_info = "No Plan"
+            company_name = None
+            if ps.plan_id:
+                try:
+                    plan = models.Plans.objects.get(plan_id=ps.plan_id)
+                    plan_info = plan.name
+                    # Look up the company
+                    try:
+                        company = models.Companies.objects.get(company_id=plan.company_id)
+                        company_name = company.name
+                    except models.Companies.DoesNotExist:
+                        pass
+                except models.Plans.DoesNotExist:
+                    pass
+
+            # Construct the output record
+            record = {
+                "provider_service_id": ps.provider_service_id,
+                "service_id": ps.service_id,
+                "service_name": service_name,
+                "service_description": service_desc,
+                "cpt_code": service_cpt,
+
+                "pricing_id": ps.pricing_id,
+                "negotiated_rate": negotiated_rate,
+                "negotiated_type": negotiated_type,
+                "billing_class": billing_class,
+                "expiration_date": expiration_date,
+
+                "provider_id": ps.provider_id,
+                "provider_name": provider_name,
+                "provider_npi": provider_npi,
+                "provider_tin": provider_tin,
+
+                "plan_id": ps.plan_id,
+                "plan_name": plan_info,
+                "company_name": company_name,
+            }
+            results.append(record)
+
+        # return response
+        return Response({
+            "cpt_code": code,
+            "details_count": len(results),
+            "details": results
+        })
+
 
 # New healthcare pricing API endpoints - Simple approach
 class HealthcarePricingView(APIView):
