@@ -12,7 +12,37 @@ const CostMap = ({ hospitals }) => {
   const [lat, setLat] = useState(40.7484);  // Default latitude (New York)
   const [zoom, setZoom] = useState(12);
   const [mapStyle, setMapStyle] = useState('mapbox://styles/mapbox/streets-v12');  // Default style
+  const [query, setQuery] = useState(''); // Might restrict search to only US...
+  // Filter
+  
+  const handleSearch = async (location) => {
+    if (!location) return;
+    
+    if (location.key == "Enter"){
+      try {
+        const res = await fetch(
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(location.target.value)}.json?access_token=${process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}`
+        );
+        const data = await res.json();
+    
+        if (data.features?.length > 0) {
+          const [long, lati] = data.features[0].center;
+          setLng(long);
+          setLat(lati);
 
+          console.log("Searching", data);
+    
+
+        } else {
+          alert('Location not found');
+        }
+      } catch (error) {
+        console.error('Error fetching location:', error);
+      }
+   }
+};
+  
+  
   const mapStyles = [
     { label: 'Streets', url: 'mapbox://styles/mapbox/streets-v12' },
     { label: 'Satellite', url: 'mapbox://styles/mapbox/satellite-v9' },
@@ -22,6 +52,13 @@ const CostMap = ({ hospitals }) => {
 
   useEffect(() => {
     if (map.current) return; // Prevent map from initializing more than once
+
+    if (navigator.geolocation){
+      navigator.geolocation?.getCurrentPosition((position) => {
+        setLng(position.coords.longitude);
+        setLat(position.coords.latitude);
+      });
+    }
 
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
@@ -34,8 +71,8 @@ const CostMap = ({ hospitals }) => {
     map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
     map.current.on('move', () => {
-      setLng(map.current.getCenter().lng.toFixed(4));
-      setLat(map.current.getCenter().lat.toFixed(4));
+      // setLng(map.current.getCenter().lng.toFixed(4));
+      // setLat(map.current.getCenter().lat.toFixed(4));
       setZoom(map.current.getZoom().toFixed(2));
     });
 
@@ -86,13 +123,25 @@ const CostMap = ({ hospitals }) => {
     }
   }, [mapStyle]);
 
+  // Go to specific search location
+  useEffect(() => {
+    map.current?.flyTo({
+      center: [lng, lat],
+      zoom: 12,
+      duration: 3000,
+    });
+  }, [lng, lat]);
+
 
   return (
     <section id="map" className="mt-6"> 
       <div className="bg-white p-4 rounded-lg shadow-md flex items-center justify-between mb-4"> {/* Style container */}
         <div>
-          <div className="text-gray-600 text-sm">
-            Longitude: <span className="font-medium text-gray-800">{lng}</span> | Latitude: <span className="font-medium text-gray-800">{lat}</span> | Zoom: <span className="font-medium text-gray-800">{zoom}</span>
+          <div className="text-gray-600 text-sm flex items-center gap-2">
+            Longitude: <span className="font-medium text-gray-800">{lng}</span> 
+            | Latitude: <span className="font-medium text-gray-800">{lat}</span> 
+            | Zoom: <span className="font-medium text-gray-800">{zoom}</span> 
+            | <span className="font-medium text-gray-800"><input onKeyDown={handleSearch} placeholder="Search for a location" className="border p-2 rounded w-full"/></span>
           </div>
         </div>
 
