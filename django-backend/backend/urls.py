@@ -32,6 +32,8 @@ urlpatterns = [
 
     ## Pricing data for a single CPT code ##
     path('api/pricedata/<int:code>/', views.PriceDataView.as_view(), name='pricedata'),
+    ## All data for a single CPT code ##
+    path('api/cpt-data-detailed/<int:code>/', views.AllDataForCPTCode.as_view(), name='cpt-data-detailed'),
 
     ## Chatbot ##
     path('api/chat/', ChatbotView.as_view(), name='chatbot'),
