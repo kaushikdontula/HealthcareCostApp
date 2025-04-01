@@ -1,0 +1,261 @@
+{
+    "services": [
+      {
+        "serviceName": "HEART TRANSPLANT OR IMPLANT OF HEART ASSIST SYSTEM WITH MCC",
+        "billingCode": "001",
+        "prices": [
+          {
+            "providerReferences": [4030001, 4100001, 4070001, 4080001, 4110001, 3140001, 6870001],
+            "negotiatedType": "negotiated",
+            "negotiatedRate": 185.00,
+            "expirationDate": "2024-12-31",
+            "billingClass": "institutional"
+          },
+          {
+            "providerReferences": [1980001, 3250001, 3290001, 6920001, 1970001, 4660001, 6890001],
+            "negotiatedType": "negotiated",
+            "negotiatedRate": 200.00,
+            "expirationDate": "2024-12-31",
+            "billingClass": "institutional"
+          },
+          {
+            "providerReferences": [6880001],
+            "negotiatedType": "negotiated",
+            "negotiatedRate": 2391705.32,
+            "expirationDate": "2024-12-31",
+            "billingClass": "institutional"
+          },
+          {
+            "providerReferences": [1920001],
+            "negotiatedType": "negotiated",
+            "negotiatedRate": 292.00,
+            "expirationDate": "2024-12-31",
+            "billingClass": "institutional"
+          },
+          {
+            "providerReferences": [1600001],
+            "negotiatedType": "negotiated",
+            "negotiatedRate": 511850.85,
+            "expirationDate": "2024-12-31",
+            "billingClass": "institutional"
+          },
+          {
+            "providerReferences": [1320001],
+            "negotiatedType": "negotiated",
+            "negotiatedRate": 81.00,
+            "expirationDate": "2024-12-31",
+            "billingClass": "institutional"
+          },
+          {
+            "providerReferences": [1830001],
+            "negotiatedType": "percentage",
+            "negotiatedRate": 0,
+            "expirationDate": "9999-12-31",
+            "billingClass": "institutional"
+          },
+          {
+            "providerReferences": [910001, 2960001, 1880001, 2980001, 2990001, 4020001, 110001, 2970001],
+            "negotiatedType": "percentage",
+            "negotiatedRate": 100,
+            "expirationDate": "2024-12-31",
+            "billingClass": "institutional"
+          },
+          {
+            "providerReferences": [1890001],
+            "negotiatedType": "percentage",
+            "negotiatedRate": 68.04,
+            "expirationDate": "2024-12-31",
+            "billingClass": "institutional"
+          }
+        ]
+      },
+      {
+        "serviceName": "HEART TRANSPLANT OR IMPLANT OF HEART ASSIST SYSTEM WITHOUT MCC",
+        "billingCode": "002",
+        "prices": [
+          {
+            "providerReferences": [4030001, 4100001, 4070001, 4080001, 4110001, 3140001, 6870001],
+            "negotiatedType": "negotiated",
+            "negotiatedRate": 185.00,
+            "expirationDate": "2024-12-31",
+            "billingClass": "institutional"
+          },
+          {
+            "providerReferences": [1980001, 3250001, 3290001, 6920001, 1970001, 4660001, 6890001],
+            "negotiatedType": "negotiated",
+            "negotiatedRate": 200.00,
+            "expirationDate": "2024-12-31",
+            "billingClass": "institutional"
+          },
+          {
+            "providerReferences": [6880001],
+            "negotiatedType": "negotiated",
+            "negotiatedRate": 2391705.32,
+            "expirationDate": "2024-12-31",
+            "billingClass": "institutional"
+          },
+          {
+            "providerReferences": [1920001],
+            "negotiatedType": "negotiated",
+            "negotiatedRate": 292.00,
+            "expirationDate": "2024-12-31",
+            "billingClass": "institutional"
+          },
+          {
+            "providerReferences": [1600001],
+            "negotiatedType": "negotiated",
+            "negotiatedRate": 511850.85,
+            "expirationDate": "2024-12-31",
+            "billingClass": "institutional"
+          },
+          {
+            "providerReferences": [1320001],
+            "negotiatedType": "negotiated",
+            "negotiatedRate": 81.00,
+            "expirationDate": "2024-12-31",
+            "billingClass": "institutional"
+          },
+          {
+            "providerReferences": [1830001],
+            "negotiatedType": "percentage",
+            "negotiatedRate": 0,
+            "expirationDate": "9999-12-31",
+            "billingClass": "institutional"
+          },
+          {
+            "providerReferences": [910001, 2960001, 1880001, 2980001, 2990001, 4020001, 110001, 2970001],
+            "negotiatedType": "percentage",
+            "negotiatedRate": 100,
+            "expirationDate": "2024-12-31",
+            "billingClass": "institutional"
+          },
+          {
+            "providerReferences": [1890001],
+            "negotiatedType": "percentage",
+            "negotiatedRate": 68.04,
+            "expirationDate": "2024-12-31",
+            "billingClass": "institutional"
+          }
+        ]
+      },
+      {
+        "serviceName": "CAROTID ARTERY STENT PROCEDURE WITH CC",
+        "billingCode": "035",
+        "prices": [
+          {
+            "providerReferences": [1010001, 1020001, 1030001, 1040001, 1050001],
+            "negotiatedType": "negotiated",
+            "negotiatedRate": 5400.50,
+            "expirationDate": "2025-06-30",
+            "billingClass": "institutional"
+          },
+          {
+            "providerReferences": [1060001, 1070001, 1080001],
+            "negotiatedType": "negotiated",
+            "negotiatedRate": 7200.75,
+            "expirationDate": "2024-12-31",
+            "billingClass": "institutional"
+          },
+          {
+            "providerReferences": [1090001],
+            "negotiatedType": "negotiated",
+            "negotiatedRate": 6500.00,
+            "expirationDate": "2026-01-01",
+            "billingClass": "institutional"
+          },
+          {
+            "providerReferences": [1100001, 1110001, 1120001],
+            "negotiatedType": "percentage",
+            "negotiatedRate": 85.5,
+            "expirationDate": "2025-03-31",
+            "billingClass": "institutional"
+          },
+          {
+            "providerReferences": [1130001, 1140001],
+            "negotiatedType": "negotiated",
+            "negotiatedRate": 8100.40,
+            "expirationDate": "2024-09-30",
+            "billingClass": "institutional"
+          },
+          {
+            "providerReferences": [1150001, 1160001, 1170001, 1180001],
+            "negotiatedType": "negotiated",
+            "negotiatedRate": 9000.00,
+            "expirationDate": "2025-12-31",
+            "billingClass": "institutional"
+          },
+          {
+            "providerReferences": [1190001],
+            "negotiatedType": "percentage",
+            "negotiatedRate": 92.3,
+            "expirationDate": "9999-12-31",
+            "billingClass": "institutional"
+          },
+          {
+            "providerReferences": [1200001, 1210001, 1220001],
+            "negotiatedType": "negotiated",
+            "negotiatedRate": 10500.00,
+            "expirationDate": "2024-11-30",
+            "billingClass": "institutional"
+          },
+          {
+            "providerReferences": [1230001, 1240001, 1250001, 1260001],
+            "negotiatedType": "negotiated",
+            "negotiatedRate": 12000.50,
+            "expirationDate": "2025-08-15",
+            "billingClass": "institutional"
+          },
+          {
+            "providerReferences": [1270001, 1280001],
+            "negotiatedType": "percentage",
+            "negotiatedRate": 75.0,
+            "expirationDate": "2024-12-31",
+            "billingClass": "institutional"
+          },
+          {
+            "providerReferences": [1290001, 1300001, 1310001],
+            "negotiatedType": "negotiated",
+            "negotiatedRate": 15000.80,
+            "expirationDate": "2026-07-01",
+            "billingClass": "institutional"
+          },
+          {
+            "providerReferences": [1320001],
+            "negotiatedType": "negotiated",
+            "negotiatedRate": 14000.00,
+            "expirationDate": "2025-10-31",
+            "billingClass": "institutional"
+          },
+          {
+            "providerReferences": [1330001, 1340001, 1350001],
+            "negotiatedType": "percentage",
+            "negotiatedRate": 78.25,
+            "expirationDate": "2025-05-20",
+            "billingClass": "institutional"
+          },
+          {
+            "providerReferences": [1360001, 1370001, 1380001],
+            "negotiatedType": "negotiated",
+            "negotiatedRate": 16200.40,
+            "expirationDate": "2025-12-31",
+            "billingClass": "institutional"
+          },
+          {
+            "providerReferences": [1390001, 1400001, 1410001],
+            "negotiatedType": "negotiated",
+            "negotiatedRate": 17500.30,
+            "expirationDate": "2026-12-31",
+            "billingClass": "institutional"
+          },
+          {
+            "providerReferences": [1420001],
+            "negotiatedType": "percentage",
+            "negotiatedRate": 80.0,
+            "expirationDate": "9999-12-31",
+            "billingClass": "institutional"
+          }
+        ]
+      }
+    ]
+  }
+  

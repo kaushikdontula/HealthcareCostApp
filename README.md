@@ -23,4 +23,4 @@ To run chatbot terminal interface:
 To set up DB and seed data:
 - From project dir:
 - Run “python3 database/generate_db.py”
-- Run “python3 data_processing/mrf_processer.py” 
+- Run “python3 database/populate_db.py” - change filename to your desired MRF
