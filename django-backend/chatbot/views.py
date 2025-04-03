@@ -106,7 +106,7 @@ def calculate_cost_range(json_data, billing_code):
 def respond_to_query(user_input):
     try:
         global messages  # Use global variable to persist conversation
-
+        print("hello")
         # Extract CPT code or find by name
         cpt_code = extract_cpt_code(user_input)
 
