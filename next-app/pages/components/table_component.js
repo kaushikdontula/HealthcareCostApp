@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useTable, useSortBy, usePagination, useGlobalFilter, useFilters } from 'react-table';
-import { ChevronDown, ChevronUp, Download, Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Filter, X, Calendar } from 'lucide-react';
+// import { ChevronDown, ChevronUp, Download, Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Filter, X, Calendar } from 'lucide-react';
+// Add FileText and AlertTriangle to the imports
+import { ChevronDown, ChevronUp, Download, Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Filter, X, Calendar, FileText, AlertTriangle } from 'lucide-react';
 import axios from 'axios';
 import clsx from 'clsx';
 import _ from 'lodash'; // Import the entire lodash library
@@ -45,6 +47,167 @@ function GlobalFilter({
   );
 }
 
+  // Export Confirmation Modal Component
+  const ExportConfirmationModal = ({ isOpen, onClose, onConfirm, exportData, isLoading }) => {
+  const [exportFormat, setExportFormat] = useState('csv');
+  const [fileName, setFileName] = useState('healthcare_pricing_data');
+  // Near your other state declarations
+  const [exportProgress, setExportProgress] = useState(0);
+  const [exportProgressText, setExportProgressText] = useState('');
+  const [isExportingProgressively, setIsExportingProgressively] = useState(false);
+  
+  if (!isOpen) return null;
+  
+  // Calculate estimated file size based on more accurate metrics
+  const bytesPerRow = {
+    csv: 250,  // More realistic estimate for CSV
+    json: 450  // More realistic estimate for JSON
+  };
+  
+  const estimatedSizeBytes = exportData.totalRecords * bytesPerRow[exportFormat];
+  
+  // Convert bytes to appropriate unit
+  let displaySize;
+  if (estimatedSizeBytes > 1024 * 1024) {
+    displaySize = `${(estimatedSizeBytes / (1024 * 1024)).toFixed(2)} MB`;
+  } else if (estimatedSizeBytes > 1024) {
+    displaySize = `${(estimatedSizeBytes / 1024).toFixed(2)} KB`;
+  } else {
+    displaySize = `${estimatedSizeBytes} bytes`;
+  }
+  
+  // Estimate export time based on file size
+  let estimatedTime = "a few seconds";
+  if (estimatedSizeBytes > 5 * 1024 * 1024) {
+    estimatedTime = "about a minute or more";
+  } else if (estimatedSizeBytes > 1024 * 1024) {
+    estimatedTime = "15-30 seconds";
+  }
+  
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-semibold text-gray-900 flex items-center">
+            <FileText className="mr-2 text-gray-700" size={22} />
+            Confirm Export
+          </h3>
+          <button 
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700"
+          >
+            <X size={20} />
+          </button>
+        </div>
+        
+        <div className="mb-6">
+          <p className="text-gray-700 mb-4">
+            You are about to export the following data:
+          </p>
+          
+          <div className="bg-gray-50 rounded-lg p-4 mb-4">
+            <div className="grid grid-cols-2 gap-y-2 text-sm">
+              <div className="text-gray-600">Total records:</div>
+              <div className="font-medium">{exportData.totalRecords.toLocaleString()}</div>
+              
+              <div className="text-gray-600">Applied filters:</div>
+              <div className="font-medium">
+                {exportData.hasFilters ? "Yes" : "None"}
+              </div>
+              
+              <div className="text-gray-600">Estimated size:</div>
+              <div className="font-medium">{displaySize}</div>
+              
+              <div className="text-gray-600">Estimated time:</div>
+              <div className="font-medium">{estimatedTime}</div>
+            </div>
+          </div>
+          
+          {exportData.totalRecords > 1000 && (
+            <div className="flex items-start p-3 bg-amber-50 border border-amber-200 rounded-lg mb-4">
+              <AlertTriangle className="text-amber-600 mt-0.5 mr-2 flex-shrink-0" size={18} />
+              <p className="text-amber-800 text-sm">
+                You're exporting a large dataset ({exportData.totalRecords.toLocaleString()} records). 
+                This may take {estimatedTime} to complete.
+              </p>
+            </div>
+          )}
+          
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              File Name
+            </label>
+            <input
+              type="text"
+              value={fileName}
+              onChange={(e) => setFileName(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter file name (without extension)"
+            />
+          </div>
+          
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Export Format
+            </label>
+            <div className="flex space-x-4">
+              <label className="inline-flex items-center">
+                <input
+                  type="radio"
+                  className="form-radio text-blue-600"
+                  name="export-format"
+                  value="csv"
+                  checked={exportFormat === 'csv'}
+                  onChange={() => setExportFormat('csv')}
+                />
+                <span className="ml-2">CSV</span>
+              </label>
+              <label className="inline-flex items-center">
+                <input
+                  type="radio"
+                  className="form-radio text-blue-600"
+                  name="export-format"
+                  value="json"
+                  checked={exportFormat === 'json'}
+                  onChange={() => setExportFormat('json')}
+                />
+                <span className="ml-2">JSON</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <div className="flex justify-end space-x-3">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => onConfirm(exportFormat, fileName)}
+            disabled={isLoading}
+            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 flex items-center"
+          >
+            {isLoading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                Exporting...
+              </>
+            ) : (
+              <>
+                <Download size={16} className="mr-2" />
+                Export
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
 export default function EnhancedDataTable() {
   // State for table data and loading
   const [tableData, setTableData] = useState([]);
@@ -83,6 +246,13 @@ export default function EnhancedDataTable() {
     expiration_date_before: ''
   });
   const [showFilterPanel, setShowFilterPanel] = useState(false);
+
+  // Add these with your other state variables
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [exportInfo, setExportInfo] = useState({
+    totalRecords: 0,
+    hasFilters: false
+  });
   
   // IMPORTANT: Direct API endpoints to Django backend
   const API_BASE_URL = 'http://127.0.0.1:8000/api';  // Direct connection to Django
@@ -138,7 +308,39 @@ export default function EnhancedDataTable() {
     fetchData(1, currentPageSize);
     setShowFilterPanel(false);
   };
-  
+
+  // Test function to check number of records that will be exported
+  const getExportRecordsCount = async () => {
+    try {
+      // If using legacy endpoint, return current total
+      if (useLegacyEndpoint) {
+        return totalRecords;
+      }
+      
+      // Build query parameters with filters
+      const params = new URLSearchParams();
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value) params.append(key, value);
+      });
+      
+      // Rather than a separate endpoint, use the main endpoint with count-only=true
+      try {
+        // First try to use the export endpoint with a count-only flag
+        const countUrl = `${PRICING_EXPORT_ENDPOINT}?${params.toString()}&count_only=true`;
+        const response = await axios.get(countUrl, { timeout: 2000 });
+        if (response.data && response.data.count) {
+          return response.data.count;
+        }
+        return totalRecords;
+      } catch (countError) {
+        console.log('Could not get exact export count, using current total');
+        return totalRecords;
+      }
+    } catch (error) {
+      console.error('Error getting export count:', error);
+      return totalRecords;
+    }
+  };
   // Function to fetch data from API
   const fetchData = async (page = 1, pageSize = 10) => {
     try {
@@ -240,7 +442,105 @@ export default function EnhancedDataTable() {
       setLoading(false);
     }
   };
-  
+
+  // Handle showing export confirmation modal
+  const handleShowExportModal = async () => {
+    // Show loading state immediately
+    setExportLoading(true);
+    
+    try {
+      // Determine if filters are active
+      const hasAnyFilter = Object.values(filters).some(filter => filter !== '');
+      
+      // Get the actual count of records that will be exported
+      const recordCount = await getExportRecordsCount();
+      
+      // Calculate additional export details
+      const activeFilterNames = Object.entries(filters)
+        .filter(([_, value]) => value !== '')
+        .map(([key, _]) => key.replace('_', ' '))
+        .join(', ');
+      
+      // Update export info
+      setExportInfo({
+        totalRecords: recordCount,
+        hasFilters: hasAnyFilter,
+        filterDetails: hasAnyFilter ? activeFilterNames : '',
+      });
+      
+      // Show the modal
+      setShowExportModal(true);
+    } catch (error) {
+      console.error('Error preparing export information:', error);
+      
+      // Fallback to basic info
+      setExportInfo({
+        totalRecords: totalRecords,
+        hasFilters: Object.values(filters).some(filter => filter !== '')
+      });
+      setShowExportModal(true);
+    } finally {
+      setExportLoading(false);
+    }
+  };
+
+    // Export data functions
+  const confirmExport = async (format, fileName) => {
+    try {
+      setExportLoading(true);
+      
+      // Use default name if none provided
+      const outputFileName = fileName || 'healthcare_pricing_data';
+      
+      // Build query parameters with filters
+      const params = new URLSearchParams();
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value) params.append(key, value);
+      });
+      
+      // If using legacy fallback, just export the current data
+      if (useLegacyEndpoint) {
+        if (format === 'csv') {
+          exportToCSV(tableData, `${outputFileName}.csv`);
+        } else if (format === 'json') {
+          exportToJSON(tableData, `${outputFileName}.json`);
+        }
+        setShowExportModal(false);
+        setExportLoading(false);
+        return;
+      }
+      
+      // Log full URL for debugging
+      const fullUrl = `${PRICING_EXPORT_ENDPOINT}?${params.toString()}`;
+      console.log("Exporting data from:", fullUrl);
+      
+      try {
+        // Fetch all data for export
+        const response = await axios.get(fullUrl);
+        
+        const exportData = response.data;
+        
+        if (format === 'csv') {
+          exportToCSV(exportData, `${outputFileName}.csv`);
+        } else if (format === 'json') {
+          exportToJSON(exportData, `${outputFileName}.json`);
+        }
+      } catch (apiError) {
+        console.error("Export API error:", apiError);
+        // Show error message without fallback export
+        alert('There was an error in the export API. Please try again later or contact support.');
+      }
+      
+      setShowExportModal(false);
+    } catch (error) {
+      console.error(`Error exporting data as ${format}:`, error);
+      alert('An error occurred while exporting the data. Please try again later.');
+    } finally {
+      setExportLoading(false);
+      setShowExportModal(false);
+    }
+  };
+
   // Extract unique values for dropdown filters
   const extractUniqueValues = (data) => {
     // Extract unique rate types
@@ -507,61 +807,8 @@ export default function EnhancedDataTable() {
     }
   }, [globalFilter, pageSize, debouncedFetchData, useLegacyEndpoint]);
 
-  // Export data functions
-  const exportAllData = async (format) => {
-    try {
-      setExportLoading(true);
-      
-      // Build query parameters with filters
-      const params = new URLSearchParams();
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value) params.append(key, value);
-      });
-      
-      // If using legacy fallback, just export the current data
-      if (useLegacyEndpoint) {
-        if (format === 'csv') {
-          exportToCSV(tableData);
-        } else if (format === 'json') {
-          exportToJSON(tableData);
-        }
-        setShowExportOptions(false);
-        setExportLoading(false);
-        return;
-      }
-      
-      // Log full URL for debugging
-      const fullUrl = `${PRICING_EXPORT_ENDPOINT}?${params.toString()}`;
-      console.log("Exporting data from:", fullUrl);
-      
-      // Fetch all data for export
-      const response = await axios.get(fullUrl);
-      
-      const exportData = response.data;
-      
-      if (format === 'csv') {
-        exportToCSV(exportData);
-      } else if (format === 'json') {
-        exportToJSON(exportData);
-      }
-      
-      setShowExportOptions(false);
-    } catch (error) {
-      console.error(`Error exporting data as ${format}:`, error);
-      alert('An error occurred while exporting the data. Please try again later.');
-      
-      // If export fails, just export the current table data
-      if (format === 'csv') {
-        exportToCSV(tableData);
-      } else if (format === 'json') {
-        exportToJSON(tableData);
-      }
-    } finally {
-      setExportLoading(false);
-    }
-  };
 
-  const exportToCSV = (data) => {
+  const exportToCSV = (data, fileName = 'healthcare_pricing_data.csv') => {
     if (!data || data.length === 0) {
       alert('No data available to export.');
       return;
@@ -572,7 +819,7 @@ export default function EnhancedDataTable() {
       .map(column => column.Header);
     
     let csvContent = headers.join(',') + '\n';
-
+  
     data.forEach((row) => {
       const csvRow = columns
         .filter(column => column.id !== 'row') // Exclude row number column
@@ -584,18 +831,18 @@ export default function EnhancedDataTable() {
       
       csvContent += csvRow.join(',') + '\n';
     });
-
-    downloadFile(csvContent, 'healthcare_pricing_data.csv', 'text/csv;charset=utf-8;');
+  
+    downloadFile(csvContent, fileName, 'text/csv;charset=utf-8;');
   };
-
-  const exportToJSON = (data) => {
+  
+  const exportToJSON = (data, fileName = 'healthcare_pricing_data.json') => {
     if (!data || data.length === 0) {
       alert('No data available to export.');
       return;
     }
     
     const jsonContent = JSON.stringify(data, null, 2);
-    downloadFile(jsonContent, 'healthcare_pricing_data.json', 'application/json;charset=utf-8;');
+    downloadFile(jsonContent, fileName, 'application/json;charset=utf-8;');
   };
 
   const downloadFile = (content, fileName, mimeType) => {
@@ -674,33 +921,14 @@ export default function EnhancedDataTable() {
 
           <div className="relative">
             <button
-              onClick={() => setShowExportOptions(!showExportOptions)}
-              disabled={exportLoading}
-              className="px-4 py-2 bg-green-600 text-white rounded-xl shadow hover:bg-green-800 transition-colors duration-300 flex items-center gap-2 disabled:opacity-50"
-              title="Export table data"
-            >
-              <Download size={16} />
-              {exportLoading ? 'Exporting...' : 'Export Data'}
+                onClick={handleShowExportModal}
+                disabled={exportLoading}
+                className="px-4 py-2 bg-green-600 text-white rounded-xl shadow hover:bg-green-800 transition-colors duration-300 flex items-center gap-2 disabled:opacity-50"
+                title="Export table data"
+              >
+                <Download size={16} />
+                {exportLoading ? 'Exporting...' : 'Export Data'}
             </button>
-            
-            {showExportOptions && (
-              <div className="absolute right-0 mt-2 w-40 origin-top-right bg-white border border-gray-200 rounded-md shadow-lg z-10 transition-all duration-300">
-                <div className="py-1">
-                  <button
-                    onClick={() => exportAllData('csv')}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200"
-                  >
-                    CSV
-                  </button>
-                  <button
-                    onClick={() => exportAllData('json')}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200"
-                  >
-                    JSON
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
         </div>
         
@@ -1088,6 +1316,15 @@ export default function EnhancedDataTable() {
               />
             </div>
           </div>
+
+          {/* Export Confirmation Modal */}
+          <ExportConfirmationModal 
+            isOpen={showExportModal}
+            onClose={() => setShowExportModal(false)}
+            onConfirm={confirmExport}
+            exportData={exportInfo}
+            isLoading={exportLoading}
+          />
         </>
       )}
     </section>
