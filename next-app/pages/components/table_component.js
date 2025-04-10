@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useTable, useSortBy, usePagination, useGlobalFilter, useFilters } from 'react-table';
-// import { ChevronDown, ChevronUp, Download, Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Filter, X, Calendar } from 'lucide-react';
-// Add FileText and AlertTriangle to the imports
 import { ChevronDown, ChevronUp, Download, Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Filter, X, Calendar, FileText, AlertTriangle } from 'lucide-react';
 import axios from 'axios';
 import clsx from 'clsx';
@@ -51,38 +49,8 @@ function GlobalFilter({
   const ExportConfirmationModal = ({ isOpen, onClose, onConfirm, exportData, isLoading }) => {
   const [exportFormat, setExportFormat] = useState('csv');
   const [fileName, setFileName] = useState('healthcare_pricing_data');
-  // Near your other state declarations
-  const [exportProgress, setExportProgress] = useState(0);
-  const [exportProgressText, setExportProgressText] = useState('');
-  const [isExportingProgressively, setIsExportingProgressively] = useState(false);
   
   if (!isOpen) return null;
-  
-  // Calculate estimated file size based on more accurate metrics
-  const bytesPerRow = {
-    csv: 250,  // More realistic estimate for CSV
-    json: 450  // More realistic estimate for JSON
-  };
-  
-  const estimatedSizeBytes = exportData.totalRecords * bytesPerRow[exportFormat];
-  
-  // Convert bytes to appropriate unit
-  let displaySize;
-  if (estimatedSizeBytes > 1024 * 1024) {
-    displaySize = `${(estimatedSizeBytes / (1024 * 1024)).toFixed(2)} MB`;
-  } else if (estimatedSizeBytes > 1024) {
-    displaySize = `${(estimatedSizeBytes / 1024).toFixed(2)} KB`;
-  } else {
-    displaySize = `${estimatedSizeBytes} bytes`;
-  }
-  
-  // Estimate export time based on file size
-  let estimatedTime = "a few seconds";
-  if (estimatedSizeBytes > 5 * 1024 * 1024) {
-    estimatedTime = "about a minute or more";
-  } else if (estimatedSizeBytes > 1024 * 1024) {
-    estimatedTime = "15-30 seconds";
-  }
   
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -102,33 +70,23 @@ function GlobalFilter({
         
         <div className="mb-6">
           <p className="text-gray-700 mb-4">
-            You are about to export the following data:
+            You are about to export all data in the current table.
           </p>
           
+          {/* Do something like this if we want to add in more info about the export
           <div className="bg-gray-50 rounded-lg p-4 mb-4">
             <div className="grid grid-cols-2 gap-y-2 text-sm">
               <div className="text-gray-600">Total records:</div>
               <div className="font-medium">{exportData.totalRecords.toLocaleString()}</div>
-              
-              <div className="text-gray-600">Applied filters:</div>
-              <div className="font-medium">
-                {exportData.hasFilters ? "Yes" : "None"}
-              </div>
-              
-              <div className="text-gray-600">Estimated size:</div>
-              <div className="font-medium">{displaySize}</div>
-              
-              <div className="text-gray-600">Estimated time:</div>
-              <div className="font-medium">{estimatedTime}</div>
             </div>
-          </div>
+          </div> */}
           
-          {exportData.totalRecords > 1000 && (
+          {exportData.totalRecords > 10000 && (
             <div className="flex items-start p-3 bg-amber-50 border border-amber-200 rounded-lg mb-4">
               <AlertTriangle className="text-amber-600 mt-0.5 mr-2 flex-shrink-0" size={18} />
               <p className="text-amber-800 text-sm">
                 You're exporting a large dataset ({exportData.totalRecords.toLocaleString()} records). 
-                This may take {estimatedTime} to complete.
+                This may take multiple minutes to complete.
               </p>
             </div>
           )}
@@ -574,66 +532,6 @@ export default function EnhancedDataTable() {
         provider_id: 'P001',
         provider_name: 'Main Street Medical Group',
         plan_info: 'Blue Cross - Premium Plan'
-      },
-      {
-        provider_service_id: 2,
-        service_id: 'SVC002',
-        cpt_code: '99214',
-        service_name: 'Office Visit - Established Patient (Level 4)',
-        service_description: 'Office/outpatient visit, established patient (30-39 min)',
-        pricing_id: 1002,
-        negotiated_rate: 165.25,
-        negotiated_type: 'Fee Schedule',
-        billing_class: 'Professional',
-        expiration_date: '2025-12-31',
-        provider_id: 'P001',
-        provider_name: 'Main Street Medical Group',
-        plan_info: 'Blue Cross - Premium Plan'
-      },
-      {
-        provider_service_id: 3,
-        service_id: 'SVC003',
-        cpt_code: '70450',
-        service_name: 'CT Scan - Head/Brain without Contrast',
-        service_description: 'CT scan, head/brain, without contrast',
-        pricing_id: 1003,
-        negotiated_rate: 320.50,
-        negotiated_type: 'Case Rate',
-        billing_class: 'Facility',
-        expiration_date: '2025-12-31',
-        provider_id: 'P002',
-        provider_name: 'City Hospital',
-        plan_info: 'Aetna - Standard Plan'
-      },
-      {
-        provider_service_id: 4,
-        service_id: 'SVC004',
-        cpt_code: '73721',
-        service_name: 'MRI - Joint of Lower Extremity',
-        service_description: 'MRI, joint of lower extremity, without contrast',
-        pricing_id: 1004,
-        negotiated_rate: 715.00,
-        negotiated_type: 'Case Rate',
-        billing_class: 'Facility',
-        expiration_date: '2025-12-31',
-        provider_id: 'P002',
-        provider_name: 'City Hospital',
-        plan_info: 'Aetna - Standard Plan'
-      },
-      {
-        provider_service_id: 5,
-        service_id: 'SVC005',
-        cpt_code: '80053',
-        service_name: 'Comprehensive Metabolic Panel',
-        service_description: 'Blood test for glucose, calcium, electrolytes, etc.',
-        pricing_id: 1005,
-        negotiated_rate: 35.75,
-        negotiated_type: 'Fee Schedule',
-        billing_class: 'Technical',
-        expiration_date: '2025-12-31',
-        provider_id: 'P003',
-        provider_name: 'Valley Diagnostics',
-        plan_info: 'UnitedHealthcare - Gold Plan'
       }
     ];
   };
