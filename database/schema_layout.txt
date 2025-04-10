@@ -97,6 +97,27 @@ CREATE TABLE IF NOT EXISTS Companies (
 );
 """)
 
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS Location (
+    location_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    npi INTEGER NOT NULL,
+    post INTEGER NOT NULL,
+    address TEXT NOT NULL,
+    city TEXT,
+    state TEXT,
+
+);
+""")
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS Location_Provider (
+    location_provider_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    provider_id FOREIGN KEY NOT NULL,
+    location_id FOREIGN KEY NOT NULL,
+);
+""")
+
 # Commit changes and close connection
 conn.commit()
 conn.close()

@@ -91,3 +91,22 @@ class ProviderService(Base):
     provider = relationship("Provider", back_populates="provider_services")
     pricing = relationship("Pricing", back_populates="provider_services")
     plan = relationship("Plan", back_populates="provider_services")
+    
+
+class Location(Base):
+    __tablename__ = 'Location'
+
+    location_id = mapped_column(Integer, primary_key=True, autoincrement=True)
+    npi = mapped_column(Integer, nullable=False)
+    postcode = mapped_column(Integer, nullable=False)
+    address = mapped_column(Text, nullable=False)
+    city = mapped_column(Text)
+    state = mapped_column(Text)
+
+class LocationProvider(Base):
+    __tablename__ = 'LocationProvider'
+
+    location_provider_id = mapped_column(Integer, primary_key=True, autoincrement=True)
+    provider_id = mapped_column(Integer, ForeignKey('Providers.provider_id'), nullable=True) 
+    location_id =  mapped_column(Integer, ForeignKey('Location.location_id'), nullable=False)
+
