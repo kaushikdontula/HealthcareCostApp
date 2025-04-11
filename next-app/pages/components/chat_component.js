@@ -4,8 +4,7 @@ import { FiMenu, FiX, FiSend } from 'react-icons/fi';
 import { FaRobot } from 'react-icons/fa'; // Robot icon
 import ReactMarkdown from 'react-markdown';
 
-export default function ChatComponent() {
-    const [messages, setMessages] = useState([]);
+export default function ChatComponent({ messages, setMessages }) {
     const [input, setInput] = useState('');
     const chatEndRef = useRef(null);
     const chatContainerRef = useRef(null); // Ref for the chat window container
