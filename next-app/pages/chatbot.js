@@ -10,15 +10,8 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 export default function Chatbot() {
     const { isSignedIn } = useAuth();
     const router = useRouter();
-    const initialMessage = router.query.initialMessage || '';
     const [messages, setMessages] = useState([]);
-      
-    useEffect(() => {
-        if (initialMessage) {
-          router.replace('/chatbot', undefined, { shallow: true });
-        }
-    }, [initialMessage]);  
-      
+
     useEffect(() => {
         if (!isSignedIn) {
             router.push('/sign-in');
@@ -59,12 +52,7 @@ export default function Chatbot() {
                     className="w-full max-w-7xl mx-auto flex flex-col items-center justify-center space-y-6"
                 >
                     <motion.div className="w-full" initial={{ opacity: 0 }} animate={{ opacity: inView.chatbot ? 1 : 0 }} transition={{ duration: 2 }}>
-                        <ChatComponent 
-                            messages={messages} 
-                            setMessages={setMessages} 
-                            initialMessage={initialMessage}
-                            isSignedIn={isSignedIn}
-                        />              
+                        <ChatComponent messages={messages} setMessages={setMessages} />
                     </motion.div>
                 </section>
             </main>

@@ -17,7 +17,6 @@ export const Home = () => {
   const [activeSection, setActiveSection] = useState('hero');
   const [selectedService, setSelectedService] = useState('MRI');
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
-  const [homepageInput, setHomepageInput] = useState('');
 
   // Parallax scrolling effect
   const { scrollYProgress } = useScroll({
@@ -227,28 +226,14 @@ export const Home = () => {
             >
               {/* Chat input styled similar to the actual app but inverted colors */}
               <div className="flex items-center bg-white p-2 rounded-full shadow-lg">
-              <input 
+                <input 
                   type="text" 
-                  value={homepageInput}
-                  onChange={(e) => setHomepageInput(e.target.value)}
                   placeholder="Ask a question about healthcare costs..."
                   className="flex-grow bg-transparent text-gray-800 placeholder-gray-500 focus:outline-none px-4 py-2"
                 />
                 <button
-                  disabled={homepageInput.trim() === ''}
-                  onClick={() => {
-                    if (homepageInput.trim() !== '') {
-                      router.push({
-                        pathname: '/chatbot',
-                        query: { initialMessage: homepageInput.trim() }
-                      });
-                    }
-                  }}
-                  className={`ml-1 p-3 rounded-full transition-all outline-none
-                    ${homepageInput.trim() === ''
-                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      : 'bg-primary hover:bg-primary-dark text-white'}
-                  `}
+                  onClick={() => router.push('/chatbot')}
+                  className="ml-1 p-3 bg-primary hover:bg-primary-dark text-white rounded-full transition-all"
                 >
                   <FiSend size={18} />
                 </button>
