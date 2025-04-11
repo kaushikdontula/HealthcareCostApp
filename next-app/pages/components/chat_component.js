@@ -4,13 +4,14 @@ import { FiMenu, FiX, FiSend } from 'react-icons/fi';
 import { FaRobot } from 'react-icons/fa'; // Robot icon
 import ReactMarkdown from 'react-markdown';
 
-export default function ChatComponent({ messages, setMessages }) {
+export default function ChatComponent({ messages, setMessages, initialMessage, isSignedIn }) {
     const [input, setInput] = useState('');
     const chatEndRef = useRef(null);
     const chatContainerRef = useRef(null); // Ref for the chat window container
     const [botTyping, setBotTyping] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [exampleText, setExampleText] = useState(''); // Holds the typed effect example text
+    const hasSentInitialMessage = useRef(false);
 
     const exampleQuestion = "How much does an MRI cost with insurance?";
 
@@ -33,6 +34,46 @@ export default function ChatComponent({ messages, setMessages }) {
         return () => clearTimeout(startTyping);
     }, []);
 
+    useEffect(() => {
+        if (initialMessage && isSignedIn && !hasSentInitialMessage.current) {
+          hasSentInitialMessage.current = true;
+      
+          const sendInitialMessage = async () => {
+            // Add user's message
+            setMessages([{ text: initialMessage, sender: 'user' }]);
+      
+            // Show loading spinner
+            setMessages((prev) => [
+              ...prev,
+              { text: "", sender: "bot", loading: true }
+            ]);
+      
+            try {
+              const response = await fetch('http://127.0.0.1:8000/api/chat/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_input: initialMessage }),
+              });
+      
+              if (!response.ok) throw new Error('Request failed');
+      
+              const data = await response.json();
+      
+              // Remove spinner, simulate typing
+              setMessages((prev) => prev.slice(0, -1));
+              simulateTypingEffect(data.assistant_message, 20);
+            } catch (err) {
+              console.error(err);
+              setMessages((prev) => [
+                ...prev.slice(0, -1),
+                { text: "Error fetching response", sender: "bot" }
+              ]);
+            }
+          };
+      
+          sendInitialMessage();
+        }
+    }, [initialMessage, isSignedIn]);
 
     // Ensure page scrolls to last message
     useEffect(() => {
