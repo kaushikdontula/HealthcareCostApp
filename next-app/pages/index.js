@@ -17,6 +17,9 @@ export const Home = () => {
   const [activeSection, setActiveSection] = useState('hero');
   const [selectedService, setSelectedService] = useState('MRI');
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
+  const [heroInputValue, setHeroInputValue] = useState('');
+
+
 
   // Parallax scrolling effect
   const { scrollYProgress } = useScroll({
@@ -225,19 +228,30 @@ export const Home = () => {
               className="mt-8 w-full max-w-xl mx-auto"
             >
               {/* Chat input styled similar to the actual app but inverted colors */}
-              <div className="flex items-center bg-white p-2 rounded-full shadow-lg">
-                <input 
-                  type="text" 
-                  placeholder="Ask a question about healthcare costs..."
-                  className="flex-grow bg-transparent text-gray-800 placeholder-gray-500 focus:outline-none px-4 py-2"
-                />
-                <button
-                  onClick={() => router.push('/chatbot')}
-                  className="ml-1 p-3 bg-primary hover:bg-primary-dark text-white rounded-full transition-all"
-                >
-                  <FiSend size={18} />
-                </button>
-              </div>
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                if (heroInputValue.trim()) {
+                  // Save the input to localStorage before navigating
+                  localStorage.setItem('initialChatMessage', heroInputValue.trim());
+                  router.push('/chatbot');
+                }
+              }}>
+                <div className="flex items-center bg-white p-2 rounded-full shadow-lg">
+                  <input 
+                    type="text" 
+                    value={heroInputValue}
+                    onChange={(e) => setHeroInputValue(e.target.value)}
+                    placeholder="Ask a question about healthcare costs..."
+                    className="flex-grow bg-transparent text-gray-800 placeholder-gray-500 focus:outline-none px-4 py-2"
+                  />
+                  <button
+                    type="submit"
+                    className="ml-1 p-3 bg-primary hover:bg-primary-dark text-white rounded-full transition-all"
+                  >
+                    <FiSend size={18} />
+                  </button>
+                </div>
+              </form>
 
               {/* Quick access icons */}
               <div className="flex justify-center gap-6 mt-4">
