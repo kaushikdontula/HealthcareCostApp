@@ -449,8 +449,8 @@ export const Home = () => {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.7 }}
             viewport={{ once: false }}
-            className="flex justify-center mt-16"
-          >
+            className="md:absolute md:bottom-10 md:left-0 md:right-0 flex justify-center mt-16 md:mt-0 pb-8"
+            >
             <motion.button 
               onClick={() => scrollToSection(missionRef)}
               whileHover={{ scale: 1.1 }}
