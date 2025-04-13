@@ -19,12 +19,7 @@ npi_info_map = {}
 
 def main():
 
-    # location_id = mapped_column(Integer, primary_key=True, autoincrement=True)
-    # npi = mapped_column(Integer, nullable=False)
-    # postcode = mapped_column(Integer, nullable=False)
-    # address = mapped_column(Text, nullable=False)
-    # city = mapped_column(Text)
-    # state = mapped_column(Text)
+
 
     location_repo = LocationRepo("healthcare_pricing.db") 
     provider_repo = ProviderRepo("healthcare_pricing.db")
@@ -41,7 +36,7 @@ def main():
                                 city=row["Affiliation Address City"],
                                 state=row["Affiliation Address State"])
             
-            location_id = location_repo.add_location(location)
+            location = location_repo.add_location(location)
             provider = provider_repo.get_provider_by_npi(int(row["NPI"]))
             if provider:
                 location_provider_repo.add_location_provider(LocationProvider(provider_id=provider, location_id=location))
