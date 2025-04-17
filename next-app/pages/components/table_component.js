@@ -32,17 +32,18 @@ function GlobalFilter({
     setValue(globalFilter || "");
   }, [globalFilter]);
 
-  return (
-    <div className="relative flex items-center">
-      <Search className="absolute left-3 w-5 h-5 text-gray-400" />
-      <input
-        value={value || ""}
-        onChange={handleChange}
-        placeholder="Search across all fields..."
-        className="pl-10 pr-4 py-2 border-2 border-gray-600 rounded-xl shadow-lg focus:border-orange-500 text-gray-700 w-full sm:w-64"
-      />
-    </div>
-  );
+  // Take out search bar for now until we have smart search for map component
+  // return (
+  //   <div className="relative flex items-center">
+  //     <Search className="absolute left-3 w-5 h-5 text-gray-400" />
+  //     <input
+  //       value={value || ""}
+  //       onChange={handleChange}
+  //       placeholder="Search across all fields..."
+  //       className="pl-10 pr-4 py-2 border-2 border-gray-600 rounded-xl shadow-lg focus:border-orange-500 text-gray-700 w-full sm:w-64"
+  //     />
+  //   </div>
+  // );
 }
 
   // Export Confirmation Modal Component

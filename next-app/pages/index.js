@@ -481,7 +481,7 @@ export const Home = () => {
       {/* SECTION 3: Mission & Testimonials Combined */}
       <section 
         ref={missionRef} 
-        className="relative min-h-screen py-20 bg-gradient-to-b from-white to-gray-50 snap-start"
+        className="relative min-h-screen flex flex-col justify-center py-20 bg-gradient-to-b from-white to-gray-50 snap-start"
         id="mission"
       >
         <div className="container mx-auto px-4">
