@@ -2,32 +2,31 @@ import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/router";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
-import { FaChevronDown, FaChartLine, FaHospital, FaUserMd, FaArrowRight, FaRegUserCircle } from 'react-icons/fa';
+import { FaChevronDown, FaChartLine, FaHospital, FaUserMd, FaArrowRight, FaRegUserCircle, FaRobot } from 'react-icons/fa';
 import { RiMentalHealthLine } from 'react-icons/ri';
 import { MdCompareArrows } from 'react-icons/md';
-import { FiSend } from 'react-icons/fi'; // For Chatbot Animation
-import { FaRobot } from 'react-icons/fa'; // Robot icon
+import { FiSend, FiMessageSquare, FiMap, FiTable } from 'react-icons/fi';
+import Footer from './components/footer';
 
 export const Home = () => {
   const { isSignedIn } = useAuth();
   const router = useRouter();
-  const ref = useRef(null);
-  const [activeTab, setActiveTab] = useState('hospitals');
-  const [showCostDemo, setShowCostDemo] = useState(false);
+  const heroRef = useRef(null);
+  const featuresRef = useRef(null);
+  const missionRef = useRef(null);
+  const [activeSection, setActiveSection] = useState('hero');
   const [selectedService, setSelectedService] = useState('MRI');
-  const [hoveredCard, setHoveredCard] = useState(null); // Unused, keeping for now
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
-  const howWeHelpRef = useRef(null); // Ref for the "How We Help" section
+  const [heroInputValue, setHeroInputValue] = useState('');
+
+
 
   // Parallax scrolling effect
   const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"]
+    offset: ["start start", "end start"]
   });
 
-  const scale = useTransform(scrollYProgress, [0, 0.5], [0.8, 1.2]);
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [0.6, 1]);
-  const y = useTransform(scrollYProgress, [0, 0.5], [100, 0]);
+  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0.5]);
 
   // Animated counter hook
   const useCounter = (end, duration = 2000) => {
@@ -62,33 +61,40 @@ export const Home = () => {
     }
   };
 
-  // Scroll to "How We Help" section
-  const scrollToHowWeHelp = () => {
-    howWeHelpRef.current?.scrollIntoView({ behavior: 'smooth' });
+  // Scroll to section functions
+  const scrollToSection = (ref) => {
+    ref.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // Sample cost comparison data
-  const costData = {
-    'MRI': {
-      'Hospital A': 2500,
-      'Hospital B': 1800,
-      'Hospital C': 3200,
-      'National Average': 2400
-    },
-    'CT Scan': {
-      'Hospital A': 1200,
-      'Hospital B': 950,
-      'Hospital C': 1600,
-      'National Average': 1300
-    },
-    'Blood Test': {
-      'Hospital A': 180,
-      'Hospital B': 120,
-      'Hospital C': 210,
-      'National Average': 150
+  // Update active section based on scroll position
+  useEffect(() => {
+    if (!router.isReady) return;
+    const scrollTarget = router.query.scrollTo;
+  
+    if (scrollTarget === 'hero' && heroRef.current) {
+      scrollToSection(heroRef);
+      router.replace('/', undefined, { shallow: true });
+    } else if (scrollTarget === 'features' && featuresRef.current) {
+      scrollToSection(featuresRef);
+      router.replace('/', undefined, { shallow: true });
+    } else if (scrollTarget === 'mission' && missionRef.current) {
+      scrollToSection(missionRef);
+      router.replace('/', undefined, { shallow: true });
     }
-  };
+  }, [router.isReady, router.query.scrollTo]);  
 
+  useEffect(() => {
+    const handleCustomScroll = (e) => {
+      const target = e.detail;
+      if (target === 'hero') scrollToSection(heroRef);
+      if (target === 'features') scrollToSection(featuresRef);
+      if (target === 'mission') scrollToSection(missionRef);
+    };
+  
+    window.addEventListener('scroll-to-section', handleCustomScroll);
+    return () => window.removeEventListener('scroll-to-section', handleCustomScroll);
+  }, []);
+  
   // Testimonials data
   const testimonials = [
     {
@@ -114,25 +120,31 @@ export const Home = () => {
     }
   ];
 
-  // Mission Statement Cards
-  const missionCards = [
+  // Feature card data
+  const cardData = [
     {
-      id: "1",
-      title: "Empower with Knowledge",
-      description: "We aim to eliminate the confusion around healthcare pricing by making it easy for anyone to understand.",
-      color: "text-blue-500",
+      id: '1',
+      title: 'Empower with Knowledge',
+      description: 'We eliminate confusion around healthcare pricing by making it accessible and easy to understand for everyone.',
+      icon: <RiMentalHealthLine className="text-5xl text-primary" />,
+      stat: useCounter(87),
+      statLabel: '% of users report better healthcare decisions'
     },
     {
-      id: "2",
-      title: "Shed Light on Healthcare Pricing",
-      description: "Healthcare pricing in the U.S. is unnecessarily complicated. We're here to show users the magnitude of the problem.",
-      color: "text-cyan-500",
+      id: '2',
+      title: 'Healthcare Price Transparency',
+      description: 'We expose the unnecessarily complicated pricing system in U.S. healthcare, showing users the true magnitude of the problem.',
+      icon: <FaHospital className="text-5xl text-primary" />,
+      stat: useCounter(10000),
+      statLabel: '+ providers in our database'
     },
     {
-      id: "3",
-      title: "Comprehensive Data and Analysis",
-      description: "Our platform provides detailed data analysis and various types of charts that help users compare healthcare prices.",
-      color: "text-green-500",
+      id: '3',
+      title: 'Data-Driven Insights',
+      description: 'Our platform provides detailed analysis through interactive charts that help users compare and understand healthcare prices.',
+      icon: <FaChartLine className="text-5xl text-primary" />,
+      stat: useCounter(42),
+      statLabel: '% average savings for informed patients'
     }
   ];
 
@@ -144,68 +156,40 @@ export const Home = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Feature card data
-  const cardData = [
-    {
-      id: '1',
-      title: 'Empower with Knowledge',
-      description: 'We aim to eliminate the confusion around healthcare pricing by making it easy for anyone to understand.',
-      icon: <RiMentalHealthLine className="text-5xl text-primary" />,
-      stat: useCounter(87),
-      statLabel: '% of users report better healthcare decisions'
-    },
-    {
-      id: '2',
-      title: 'Shed Light on Healthcare Pricing',
-      description: 'Healthcare pricing in the U.S. is unnecessarily complicated. We\'re here to show users the magnitude of the problem.',
-      icon: <FaHospital className="text-5xl text-secondary" />,
-      stat: useCounter(10000),
-      statLabel: '+ providers in our database'
-    },
-    {
-      id: '3',
-      title: 'Comprehensive Data Analysis',
-      description: 'Our platform provides detailed data analysis and various types of charts that help users compare healthcare prices.',
-      icon: <FaChartLine className="text-5xl text-accent" />,
-      stat: useCounter(42),
-      statLabel: '% average savings for informed patients'
-    }
-  ];
-
-  // Animated Chatbot Demo Data
-  const initialChatbotMessages = [
-    { text: "Hello! How can I help you understand healthcare costs today?", sender: "bot" },
-    { text: "What's the average cost of an MRI in my area?", sender: "user" },
-    { text: "In your location an MRI can range from $400-$3500 with the average cost being $2450.50.", sender: "bot" },
-    { text: "Which hospital had the lowest procedure cost?", sender: "user" },
-    { text: "The hospital with the lowest cost was ____ with a price of $567.24.", sender: "bot" },
-    { text: "Thanks!", sender: "user" },
-    { text: "No problem, let me know if any other questions arise!", sender: "bot" }
-  ];
-  const [chatbotMessages, setChatbotMessages] = useState([]); // Start empty
-  const [messageIndex, setMessageIndex] = useState(0);
-  const [showAllMessages, setShowAllMessages] = useState(false);
-
-  useEffect(() => {
-    if (messageIndex < initialChatbotMessages.length && !showAllMessages) {
-      const timeout = setTimeout(() => {
-        setChatbotMessages([...chatbotMessages, initialChatbotMessages[messageIndex]]);
-        setMessageIndex(messageIndex + 1);
-      }, 1500); // Add a message every 1.5 seconds
-
-      return () => clearTimeout(timeout); // Clear timeout on unmount or if dependencies change
-    }
-  }, [messageIndex, chatbotMessages, showAllMessages]);
-
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gray-50">
-      {/* Animated background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-secondary/30 to-accent/30 opacity-20 animate-gradient" />
+    <div className="relative overflow-hidden">
+      {/* Navigation dots */}
+      <div className="fixed right-8 top-1/2 transform -translate-y-1/2 z-50 hidden md:block">
+        <div className="flex flex-col gap-4">
+          <motion.button 
+            onClick={() => scrollToSection(heroRef)}
+            className={`w-4 h-4 rounded-full transition-all duration-300 ${activeSection === 'hero' ? 'bg-primary scale-125' : 'bg-gray-300'}`}
+            whileHover={{ scale: 1.2 }}
+          />
+          <motion.button 
+            onClick={() => scrollToSection(featuresRef)}
+            className={`w-4 h-4 rounded-full transition-all duration-300 ${activeSection === 'features' ? 'bg-primary scale-125' : 'bg-gray-300'}`}
+            whileHover={{ scale: 1.2 }}
+          />
+          <motion.button 
+            onClick={() => scrollToSection(missionRef)}
+            className={`w-4 h-4 rounded-full transition-all duration-300 ${activeSection === 'mission' ? 'bg-primary scale-125' : 'bg-gray-300'}`}
+            whileHover={{ scale: 1.2 }}
+          />
+        </div>
+      </div>
 
-      {/* Hero section */}
-      <div className="relative px-6 lg:px-8 flex flex-col min-h-screen">
-        <div className="flex-1 flex items-center justify-center">
-          <div className="max-w-3xl text-center">
+      {/* SECTION 1: Hero section */}
+      <section 
+        ref={heroRef} 
+        className="relative min-h-screen flex flex-col justify-center overflow-hidden snap-start"
+        id="hero"
+      >
+        {/* Animated background gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-secondary/30 to-accent/30 opacity-20 animate-gradient" />
+        
+        <div className="relative px-6 lg:px-8 py-12 flex flex-col items-center justify-center min-h-screen">
+          <div className="max-w-3xl text-center mt-[-10vh]">
             <motion.h1
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -213,7 +197,7 @@ export const Home = () => {
               className="text-4xl font-bold tracking-tight text-black sm:text-6xl mb-4"
             >
               <span className="block">Understand</span>
-              <span className="relative">
+              <span className="relative inline-block">
                 <span className="text-black">
                   Healthcare Costs
                 </span>
@@ -233,368 +217,372 @@ export const Home = () => {
               transition={{ duration: 0.7, delay: 0.3 }}
               className="mt-6 text-xl leading-8 text-gray-600 mb-8"
             >
-              Compare prices, understand billing, and make informed decisions
-              about your healthcare with our interactive tools.
+              Access real pricing data from thousands of providers nationwide. 
+              Compare costs, understand billing, and make informed healthcare decisions with our interactive tools.
             </motion.p>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.5 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center"
+              className="mt-8 w-full max-w-xl mx-auto"
             >
-              <motion.button
-                onClick={handleNavigation}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="bg-primary hover:bg-primary-dark text-white font-semibold py-3 px-8 rounded-full shadow-lg transition duration-300 ease-in-out flex items-center justify-center gap-2"
-              >
-                <span>Start Exploring</span>
-                <FaArrowRight />
-              </motion.button>
-
-              <motion.button
-                onClick={() => setShowCostDemo(true)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="bg-white text-primary border-2 border-primary hover:bg-gray-100 font-semibold py-3 px-8 rounded-full shadow-lg transition duration-300 ease-in-out flex items-center justify-center gap-2"
-              >
-                <span>Try Demo</span>
-                <MdCompareArrows />
-              </motion.button>
-            </motion.div>
-          </div>
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.7 }}
-          className="flex justify-center pb-8"
-        >
-            <motion.button onClick={scrollToHowWeHelp}  whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}>
-                <FaChevronDown className="text-4xl text-gray-600 animate-bounce" />
-            </motion.button>
-        </motion.div>
-      </div>
-
-      {/* Interactive Cost Comparison Demo */}
-      <AnimatePresence>
-        {showCostDemo && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-          >
-            <motion.div
-              className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[80vh] overflow-auto"
-              layoutId="cost-demo"
-            >
-              <div className="p-4 bg-gray-100 flex justify-between items-center border-b">
-                <div className="flex items-center">
-                  <div className="w-3 h-3 rounded-full bg-red-500 mx-1"></div>
-                  <div className="w-3 h-3 rounded-full bg-yellow-500 mx-1"></div>
-                  <div className="w-3 h-3 rounded-full bg-green-500 mx-1"></div>
+              {/* Chat input styled similar to the actual app but inverted colors */}
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                if (heroInputValue.trim()) {
+                  // Save the input to localStorage before navigating
+                  localStorage.setItem('initialChatMessage', heroInputValue.trim());
+                  router.push('/chatbot');
+                }
+              }}>
+                <div className="flex items-center bg-white p-2 rounded-full shadow-lg">
+                  <input 
+                    type="text" 
+                    value={heroInputValue}
+                    onChange={(e) => setHeroInputValue(e.target.value)}
+                    placeholder="Ask a question about healthcare costs..."
+                    className="flex-grow bg-transparent text-gray-800 placeholder-gray-500 focus:outline-none px-4 py-2"
+                  />
+                  <button
+                    type="submit"
+                    className="ml-1 p-3 bg-primary hover:bg-primary-dark text-white rounded-full transition-all"
+                  >
+                    <FiSend size={18} />
+                  </button>
                 </div>
-                <h3 className="text-xl font-bold text-center">Healthcare Cost Comparison</h3>
-                <button onClick={() => setShowCostDemo(false)} className="text-gray-500 hover:text-red-500">
-                  ✕
-                </button>
-              </div>
+              </form>
 
-              <div className="p-6">
-                <div className="mb-6">
-                  <div className="mb-4 flex justify-between items-center">
-                    <label className="text-lg font-medium">Select medical service:</label>
-                    <div className="bg-green-50 border border-green-200 text-green-700 p-3 rounded-md shadow-sm text-sm">
-                      Unlock personalized cost insights with our revolutionary chatbot — available after sign-up!
-                    </div>
-                  </div>
-
-
-                  <div className="flex flex-wrap gap-3">
-                    {Object.keys(costData).map(service => (
-                      <button
-                        key={service}
-                        onClick={() => setSelectedService(service)}
-                        className={`px-4 py-2 rounded-full transition-all ${selectedService === service ? 'bg-primary text-white' : 'bg-gray-200 hover:bg-gray-300'}`}
-                      >
-                        {service}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-
-
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <h4 className="text-lg font-medium mb-4">Cost comparison for {selectedService}</h4>
-                  <div className="space-y-4">
-                    {Object.entries(costData[selectedService]).map(([hospital, cost]) => (
-                      <div key={hospital} className="relative">
-                        <div className="flex justify-between mb-1">
-                          <span className="font-medium">{hospital}</span>
-                          <span className={`font-bold ${cost < costData[selectedService]['National Average'] ? 'text-green-600' : 'text-red-600'
-                            }`}>
-                            ${cost.toLocaleString()}
-                          </span>
-                        </div>
-                        <div className="w-full bg-gray-300 rounded-full h-2.5">
-                          <motion.div
-                            initial={{ width: 0 }}
-                            animate={{ width: `${(cost / 4000) * 100}%` }}
-                            transition={{ duration: 1, delay: 0.2 }}
-                            className={`h-2.5 rounded-full ${cost < costData[selectedService]['National Average']
-                              ? 'bg-green-500'
-                              : 'bg-red-500'
-                              }`}
-                          />
-                        </div>
-                        {hospital === 'National Average' && (
-                          <div className="mt-1 text-sm text-gray-500 italic">Reference price</div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
-                    <div className="flex items-start">
-                      <div className="bg-blue-100 p-2 rounded-full">
-                        <FaUserMd className="text-blue-600" />
-                      </div>
-                      <div className="ml-3">
-                        <h4 className="font-medium text-blue-800">Cost Insight</h4>
-                        <p className="text-sm text-blue-700">
-                          Prices for {selectedService} can vary by up to {Math.round((Math.max(...Object.values(costData[selectedService])) /
-                            Math.min(...Object.values(costData[selectedService])) - 1) * 100)}% between providers! This demonstrates how shopping around can save you significant money.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={handleNavigation}
-                  className="w-full mt-6 bg-primary text-white py-3 rounded-lg font-medium flex items-center justify-center gap-2"
+              {/* Quick access icons */}
+              <div className="flex justify-center gap-6 mt-4">
+                <motion.div 
+                  whileHover={{ scale: 1.1 }}
+                  className="relative group"
                 >
-                  <span>See full cost analysis for all procedures</span>
-                  <FaArrowRight />
-                </motion.button>
+                  <button
+                    onClick={() => router.push('/map')}
+                    className="p-3 bg-white text-primary rounded-full shadow-md hover:shadow-lg transition-all"
+                  >
+                    <FiMap size={24} />
+                  </button>
+                  <div className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                    Interactive Cost Map
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  whileHover={{ scale: 1.1 }}
+                  className="relative group"
+                >
+                  <button
+                    onClick={() => router.push('/tabularData')}
+                    className="p-3 bg-white text-primary rounded-full shadow-md hover:shadow-lg transition-all"
+                  >
+                    <FiTable size={24} />
+                  </button>
+                  <div className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                    Tabular Data View
+                  </div>
+                </motion.div>
               </div>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <div ref={howWeHelpRef} className="container mx-auto px-4 py-20">
-        {/* Interactive service tabs */}
-        <div className="max-w-6xl mx-auto mb-20">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-3xl font-bold text-center mb-12"
-          >
-            <span className="relative inline-block">
-              How We Help You Navigate Healthcare Costs
-              <motion.span
-                className="absolute -bottom-2 left-1/4 right-1/4 h-1 bg-secondary"
-                initial={{ width: 0 }}
-                animate={{ width: "50%" }}
-                transition={{ delay: 0.5, duration: 0.8 }}
-              />
-            </span>
-          </motion.h2>
-
-          <div className="flex justify-center mb-8 flex-wrap">
-            <button
-              onClick={() => setActiveTab('hospitals')}
-              className={`px-6 py-3 mx-2 my-2 rounded-full transition-all ${activeTab === 'hospitals'
-                ? 'bg-primary text-white shadow-lg'
-                : 'bg-gray-100 hover:bg-gray-200'
-                }`}
-            >
-              Hospital Costs
-            </button>
-            <button
-              onClick={() => setActiveTab('insurance')}
-              className={`px-6 py-3 mx-2 my-2 rounded-full transition-all ${activeTab === 'insurance'
-                ? 'bg-primary text-white shadow-lg'
-                : 'bg-gray-100 hover:bg-gray-200'
-                }`}
-            >
-              Insurance Coverage
-            </button>
-            <button
-              onClick={() => setActiveTab('medications')}
-              className={`px-6 py-3 mx-2 my-2 rounded-full transition-all ${activeTab === 'medications'
-                ? 'bg-primary text-white shadow-lg'
-                : 'bg-gray-100 hover:bg-gray-200'
-                }`}
-            >
-              Medication Prices
-            </button>
-          </div>
-
-          <AnimatePresence mode="wait">
+            
             <motion.div
-              key={activeTab}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              transition={{ duration: 0.3 }}
-              className="text-center text-gray-700"
+              transition={{ duration: 0.5, delay: 0.7 }}
+              className="max-w-2xl mx-auto"
             >
-              {activeTab === 'hospitals' && (
-                <div>
-                  Our hospital cost comparison tool allows you to see prices for
-                  common procedures at different hospitals in your area.
-                  Understand potential out-of-pocket costs before you receive care.
-                </div>
-              )}
-              {activeTab === 'insurance' && (
-                <div>
-                  Navigate the complexities of insurance coverage with our guides
-                  and resources. Learn how to understand your policy and maximize
-                  your benefits.
-                </div>
-              )}
-              {activeTab === 'medications' && (
-                <div>
-                  Discover the prices of prescription medications at various pharmacies.
-                  Find coupons and discounts to save money on your prescriptions.
-                </div>
-              )}
-            </motion.div>
-          </AnimatePresence>
-        </div>
-
-        {/* Feature cards section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-20">
-          {cardData.map((card) => (
-            <motion.div
-              key={card.id}
-              className="bg-white p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-shadow duration-300"
-              onHoverStart={() => setHoveredCard(card.id)}
-              onHoverEnd={() => setHoveredCard(null)}
-            >
-              <div className="mb-4">{card.icon}</div>
-              <h3 className="text-xl font-semibold mb-2">{card.title}</h3>
-              <p className="text-gray-600">{card.description}</p>
-              <div className="mt-4">
-                <span className="text-3xl font-bold text-primary">{card.stat}</span>
-                <span className="ml-2 text-gray-500">{card.statLabel}</span>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-        
-        {/* Parallax section */}
-        <div ref={ref} className="relative h-[600px] overflow-hidden">
-          <motion.div
-            style={{ scale, opacity, y }}
-            className="absolute inset-0 bg-[url('/images/hero-image.jpg')] bg-cover bg-center"
-          />
-          <div className="absolute inset-0 flex flex-col items-center justify-center p-4">  {/* Removed bg-black/60 */}
-            <motion.h2
-              initial={{ opacity: 0, y: -50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1 }}
-              className="text-black text-4xl font-bold text-center mb-6"
-            >
-              Our Revolutionary Chatbot for Easier Analysis
-            </motion.h2>
-            {/* Animated Chatbot Demo */}
-            <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.3 }}
-              className="w-4/5 max-w-4xl bg-white rounded-xl shadow-2xl p-6" // Increased width
-            >
-              <div className="flex items-center space-x-3 mb-4">
-                <FaRobot className="text-2xl text-primary" />
-                <h4 className="text-lg font-semibold">Healthcare Cost Assistant</h4>
-              </div>
-              <div className="space-y-2">
-                {chatbotMessages.map((msg, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: index * 0.3 }}  // Staggered appearance
-                    className={`p-3 rounded-lg ${msg.sender === 'user' ? 'bg-gray-100 text-gray-800 self-end ml-auto' : 'bg-gray-700 text-gray-100 self-start'}`}
-                  >
-                    {msg.text}
-                  </motion.div>
-                ))}
-              </div>
-              {/* Demo Input (Not Functional) */}
-              <div className="flex items-center mt-4">
-                <input
-                  type="text"
-                  placeholder="Ask a question..."
-                  className="flex-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                  disabled // It's just a demo
-                />
-                <button className="p-3 ml-2 rounded-full bg-primary text-white" disabled> {/* It's just a demo */}
-                  <FiSend />
-                </button>
-              </div>
+              {/* Removed this section as we're now using the simpler direct interface above */}
             </motion.div>
           </div>
-        </div>
 
-        {/* Testimonials section */}
-        <div className="max-w-4xl mx-auto py-12">
-          <motion.h2
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-3xl font-bold text-center mb-12"
+            transition={{ duration: 0.5, delay: 0.7 }}
+            className="absolute bottom-10 left-0 right-0 flex justify-center"
           >
-            <span className="relative inline-block">
-              What Our Users Are Saying
-              <motion.span
-                className="absolute -bottom-2 left-1/4 right-1/4 h-1 bg-secondary"
-                initial={{ width: 0 }}
-                animate={{ width: "50%" }}
-                transition={{ delay: 0.5, duration: 0.8 }}
-              />
-            </span>
-          </motion.h2>
-
-          <div className="relative overflow-hidden">
-            <motion.div
-              className="flex transition-transform duration-500"
-              style={{ transform: `translateX(-${currentTestimonial * 100}%)` }}
+            <motion.button 
+              onClick={() => scrollToSection(featuresRef)}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              className="flex flex-col items-center gap-2 text-primary font-medium"
             >
-              {testimonials.map((testimonial) => (
-                <div key={testimonial.id} className="w-full flex-shrink-0 px-6">
-                  <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
-                    <div className="text-6xl mb-4">{testimonial.avatar}</div>
-                    <p className="text-gray-700 italic mb-4">{testimonial.text}</p>
-                    <p className="font-semibold">{testimonial.name}</p>
-                    <p className="text-gray-500">{testimonial.role}</p>
+              <span>See Features</span>
+              <FaChevronDown className="text-3xl text-primary animate-bounce" />
+            </motion.button>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* SECTION 2: Features section */}
+      <section 
+        ref={featuresRef} 
+        className="relative min-h-screen flex flex-col justify-center py-20 bg-gray-50 snap-start"
+        id="features"
+      >
+        <div className="container mx-auto px-4">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+            viewport={{ once: false, amount: 0.3 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl font-bold mb-6">
+              <span className="relative inline-block">
+                Powerful Features
+                <motion.span
+                  className="absolute -bottom-2 left-0 w-full h-1 bg-primary"
+                  initial={{ width: 0 }}
+                  whileInView={{ width: "100%" }}
+                  transition={{ delay: 0.3, duration: 0.8 }}
+                  viewport={{ once: false }}
+                />
+              </span>
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              We've processed complex healthcare pricing data to give you simple, 
+              clear access to information that was previously hidden in plain sight.
+            </p>
+          </motion.div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {/* Feature 1: AI Chatbot */}
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              viewport={{ once: false, amount: 0.3 }}
+              className="bg-white rounded-xl shadow-xl overflow-hidden transition-all duration-300 ease-in-out transform hover:shadow-2xl hover:ring-2 hover:ring-orange-500 group cursor-pointer"
+              onClick={() => router.push('/chatbot')}
+            >
+              <div className="p-6">
+                <div className="w-14 h-14 bg-primary/5 rounded-full flex items-center justify-center mb-6 transition-colors">
+                  <FiMessageSquare className="w-7 h-7 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-3">AI-Powered Chatbot</h3>
+                <p className="text-gray-600 mb-4">
+                  Ask any question about healthcare costs and get instant, data-backed answers 
+                  from our AI assistant with access to our complete pricing database.
+                </p>
+              </div>
+              <div className="bg-gray-50 p-4 border-t">
+                <div className="py-3 px-4 bg-gray-100 rounded-lg">
+                  <div className="flex items-start space-x-3">
+                    <div className="bg-primary rounded-full p-2 text-white">
+                      <FaRobot className="w-4 h-4" />
+                    </div>
+                    <div className="text-sm">
+                      <div className="font-medium">What's the average cost of an MRI in Chicago?</div>
+                      <div className="mt-1 text-gray-500">The average cost for an MRI in Chicago is $1,250, ranging from $450 to $3,200 depending on facility and insurance...</div>
+                    </div>
                   </div>
                 </div>
-              ))}
+              </div>
+            </motion.div>
+            
+            {/* Feature 2: Cost Map */}
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              viewport={{ once: false, amount: 0.3 }}
+              className="bg-white rounded-xl shadow-xl overflow-hidden transition-all duration-300 ease-in-out transform hover:shadow-2xl hover:ring-2 hover:ring-orange-500 group cursor-pointer"
+              onClick={() => router.push('/map')}
+            >
+              <div className="p-6">
+                <div className="w-14 h-14 bg-primary/5 rounded-full flex items-center justify-center mb-6 transition-colors">
+                  <FiMap className="w-7 h-7 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-3">Interactive Cost Map</h3>
+                <p className="text-gray-600 mb-4">
+                  Visualize healthcare costs geographically and zoom in to street level to find 
+                  and compare pricing at specific providers in your area.
+                </p>
+              </div>
+              <div className="bg-gray-50 p-4 border-t flex justify-center">
+                <div className="relative w-full h-32 bg-green-50 rounded-lg overflow-hidden">
+                  {/* Mock map with price indicators */}
+                  <div className="absolute inset-0 bg-blue-100 opacity-50"></div>
+                  <div className="absolute top-1/4 left-1/4 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold">$$$</div>
+                  <div className="absolute top-1/2 left-1/2 w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center text-white text-xs font-bold">$$</div>
+                  <div className="absolute bottom-1/4 right-1/4 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold">$</div>
+                </div>
+              </div>
+            </motion.div>
+            
+            {/* Feature 3: Data Table */}
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+              viewport={{ once: false, amount: 0.3 }}
+              className="bg-white rounded-xl shadow-xl overflow-hidden transition-all duration-300 ease-in-out transform hover:shadow-2xl hover:ring-2 hover:ring-orange-500 group cursor-pointer"
+              onClick={() => router.push('/tabularData')}
+            >
+              <div className="p-6">
+                <div className="w-14 h-14 bg-primary/5 rounded-full flex items-center justify-center mb-6 transition-colors">
+                  <FiTable className="w-7 h-7 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-3">Comprehensive Data</h3>
+                <p className="text-gray-600 mb-4">
+                  Access, filter, and export detailed pricing data for thousands of medical procedures. 
+                  Sort by provider, CPT code, price range, and more.
+                </p>
+              </div>
+              <div className="bg-gray-50 p-4 border-t">
+                <div className="w-full h-32 bg-white rounded-lg overflow-hidden border border-gray-200">
+                  {/* Mock data table */}
+                  <div className="bg-gray-800 text-white text-xs py-2 px-3 grid grid-cols-4">
+                    <div>CPT Code</div>
+                    <div>Procedure</div>
+                    <div>Provider</div>
+                    <div>Price</div>
+                  </div>
+                  <div className="text-xs py-2 px-3 grid grid-cols-4 border-b">
+                    <div>99213</div>
+                    <div>Office Visit</div>
+                    <div>City Hospital</div>
+                    <div className="font-medium">$125</div>
+                  </div>
+                  <div className="text-xs py-2 px-3 grid grid-cols-4 border-b bg-gray-50">
+                    <div>73721</div>
+                    <div>MRI Knee</div>
+                    <div>Medical Center</div>
+                    <div className="font-medium">$950</div>
+                  </div>
+                </div>
+              </div>
             </motion.div>
           </div>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.7 }}
+            viewport={{ once: false }}
+            className="md:absolute md:bottom-10 md:left-0 md:right-0 flex justify-center mt-16 md:mt-0 pb-8"
+            >
+            <motion.button 
+              onClick={() => scrollToSection(missionRef)}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              className="flex flex-col items-center gap-2 text-primary font-medium"
+            >
+              <span>Our Impact</span>
+              <FaChevronDown className="text-3xl text-primary animate-bounce" />
+            </motion.button>
+          </motion.div>
         </div>
-      </div>
+      </section>
+
+      {/* SECTION 3: Mission & Testimonials Combined */}
+      <section 
+        ref={missionRef} 
+        className="relative min-h-screen flex flex-col justify-center py-20 bg-gradient-to-b from-white to-gray-50 snap-start"
+        id="mission"
+      >
+        <div className="container mx-auto px-4">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+            viewport={{ once: false, amount: 0.3 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl font-bold mb-6">
+              <span className="relative inline-block">
+                Our Mission & Impact
+                <motion.span
+                  className="absolute -bottom-2 left-0 w-full h-1 bg-primary"
+                  initial={{ width: 0 }}
+                  whileInView={{ width: "100%" }}
+                  transition={{ delay: 0.3, duration: 0.8 }}
+                  viewport={{ once: false }}
+                />
+              </span>
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              We're committed to making healthcare costs transparent and accessible for everyone,
+              empowering informed decisions and driving positive change in the healthcare system.
+            </p>
+          </motion.div>
+
+          {/* Mission Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-20">
+            {cardData.map((card) => (
+              <motion.div
+                key={card.id}
+                className="bg-white p-6 rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-2 hover:scale-105 transition-all duration-300 group"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 * parseInt(card.id) }}
+                viewport={{ once: false, amount: 0.3 }}
+              >
+                <div className="mb-4 text-primary">{card.icon}</div>
+                <h3 className="text-xl font-semibold mb-2">{card.title}</h3>
+                <p className="text-gray-600">{card.description}</p>
+                <div className="mt-4">
+                  <span className="text-3xl font-bold text-primary">{card.stat}</span>
+                  <span className="ml-2 text-gray-500">{card.statLabel}</span>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+          
+          {/* Testimonials Section - Slimmer Version */}
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.3 }}
+            viewport={{ once: false, amount: 0.3 }}
+            className="max-w-6xl mx-auto mt-10"
+          >
+            <h3 className="text-xl font-bold text-center mb-4">What Our Users Are Saying</h3>
+            
+            <div className="relative bg-white/70 backdrop-blur-sm rounded-xl shadow-md overflow-hidden">
+              <div className="overflow-hidden h-24">
+                <motion.div
+                  className="flex transition-transform duration-500 h-full"
+                  style={{ transform: `translateX(-${currentTestimonial * 100}%)` }}
+                >
+                  {testimonials.map((testimonial) => (
+                    <div key={testimonial.id} className="w-full flex-shrink-0 px-6 py-3 flex items-center">
+                      <div className="flex items-center space-x-4 w-full">
+                        <div className="text-3xl">{testimonial.avatar}</div>
+                        <div className="flex-1">
+                          <p className="text-gray-700 italic text-sm md:text-base">{testimonial.text}</p>
+                          <div className="flex items-baseline mt-1 text-sm">
+                            <p className="font-semibold">{testimonial.name}</p>
+                            <p className="text-gray-500 ml-2">— {testimonial.role}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </motion.div>
+              </div>
+              
+              <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-2">
+                {testimonials.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentTestimonial(index)}
+                    className={`w-1 h-1 rounded-full transition-all duration-300 ${
+                      currentTestimonial === index ? 'bg-primary w-4' : 'bg-gray-300'
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
 
       {/* Footer */}
-      <footer className="bg-gray-100 py-8">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-gray-500">
-            &copy; {new Date().getFullYear()} Healthcare Costs. All rights reserved.
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

@@ -4,8 +4,7 @@ import { FiMenu, FiX, FiSend } from 'react-icons/fi';
 import { FaRobot } from 'react-icons/fa'; // Robot icon
 import ReactMarkdown from 'react-markdown';
 
-export default function ChatComponent() {
-    const [messages, setMessages] = useState([]);
+export default function ChatComponent({ messages, setMessages }) {
     const [input, setInput] = useState('');
     const chatEndRef = useRef(null);
     const chatContainerRef = useRef(null); // Ref for the chat window container
@@ -14,6 +13,62 @@ export default function ChatComponent() {
     const [exampleText, setExampleText] = useState(''); // Holds the typed effect example text
 
     const exampleQuestion = "How much does an MRI cost with insurance?";
+
+    // Get message from landing page if entered
+    useEffect(() => {
+        // Check for an initial message from localStorage when the chat component mounts
+        const initialMessage = localStorage.getItem('initialChatMessage');
+        
+        if (initialMessage && messages.length === 0) {
+            // Create and submit the initial message
+            const userMessage = { text: initialMessage, sender: 'user' };
+            setMessages([userMessage]);
+            
+            // Set loading state
+            setIsLoading(true);
+            setBotTyping(true);
+            
+            // Show loading message
+            setMessages((prevMessages) => [
+                ...prevMessages,
+                { text: "", sender: "bot", loading: true }
+            ]);
+            
+            // Submit the initial message to the API
+            (async () => {
+                try {
+                    const response = await fetch('http://127.0.0.1:8000/api/chat/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ user_input: initialMessage }),
+                    });
+                    
+                    if (!response.ok) throw new Error('Failed to get response from chatbot');
+                    
+                    const data = await response.json();
+                    
+                    // Remove loading message before adding actual response
+                    setMessages((prevMessages) => prevMessages.slice(0, -1));
+                    
+                    simulateTypingEffect(data.assistant_message, 20);
+                } catch (error) {
+                    console.error('Error:', error);
+                    setMessages((prevMessages) => [
+                        ...prevMessages.slice(0, -1), // Remove loading message
+                        { text: "Error fetching response", sender: "bot" },
+                    ]);
+                } finally {
+                    setIsLoading(false);
+                    setBotTyping(false);
+                    
+                    // Clear the initial message from localStorage to prevent it from firing again on refresh
+                    localStorage.removeItem('initialChatMessage');
+                }
+            })();
+        }
+    }, []);  // Empty dependency array ensures this runs only once when component mounts
+
+
 
     // Typing effect for the example question
     useEffect(() => {

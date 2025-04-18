@@ -412,7 +412,8 @@ class ExportHealthcarePricingView(APIView):
             queryset = queryset.filter(pricing_id__in=pricing_ids)
         
         # Limit to 5000 records for export to prevent excessive data
-        queryset = queryset[:5000]
+        # queryset = queryset[:5000]
+        # !! Removing Limit for now
         
         # Process queryset into the format we need
         result = []
@@ -441,7 +442,7 @@ class ExportHealthcarePricingView(APIView):
                 expiration_date = None
                 
             try:
-                provider = models.Providers.objects.get(provider_group_id=provider_service.provider_id)
+                provider = models.Providers.objects.get(provider_id=provider_service.provider_id)
                 provider_id = provider.provider_id
                 provider_name = provider.name
             except models.Providers.DoesNotExist:
