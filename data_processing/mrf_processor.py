@@ -35,7 +35,8 @@ def provider_data_objects(data, name) -> List[Provider]:
                 providers = j
                 tin = int(providers["tin"]["value"])
                 for val in providers["npi"]:
-                    provider_repo.add_provider(Provider(provider_group_id=provider_group_id, name=name, npi=val, tin=tin))
+                    if not provider_repo.get_provider_by_npi(val):
+                        provider_repo.add_provider(Provider(provider_group_id=provider_group_id, name=name, npi=val, tin=tin))
 
     return obj_arr
 
