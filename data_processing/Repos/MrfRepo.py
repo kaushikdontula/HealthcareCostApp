@@ -7,7 +7,7 @@ from datetime import datetime
 import os
 
 
-from data_processing.Models.MrfDbModels import Provider, Pricing, Service, ProviderDetails, Company, Plan, ProviderService
+from data_processing.Models.MrfDbModels import Provider, Pricing, Service, ProviderDetails, Company, Plan, ProviderService, Location, LocationProvider
 
 BASE_DIR = Path(__file__).parent.parent.parent
 DB_PATH = Path(__file__).parent.parent.parent / 'database'
@@ -86,6 +86,12 @@ class ProviderRepo(BaseRepo):
                 session.refresh(existing_provider)
                 session.expunge_all()
                 return existing_provider
+            
+    def get_provider_by_npi(self, npi:int) -> Provider:
+        with self.Session.begin() as session:
+            provider = session.query(Provider).filter_by(npi=npi).first()
+            session.expunge_all()
+            return provider
 
 
 class PricingRepo(BaseRepo):
@@ -455,3 +461,82 @@ class ProviderServiceRepo(BaseRepo):
                 return existing_provider_service
 
 
+class LocationRepo(BaseRepo):
+    def add_location(self, location: Location) -> int:
+        """
+        Add a location and return the new instance.
+        """
+        with self.Session.begin() as session:
+            session.add(location)
+            session.flush()
+            session.refresh(location)
+            session.expunge_all()
+            return location.location_id
+
+    def add_locations(self, locations: list[Location]) -> list[Location]:
+        """
+        Add multiple locations and return the list of added instances.
+        """
+        with self.Session.begin() as session:
+            session.add_all(locations)
+            session.flush()
+            for location in locations:
+                session.refresh(location)
+            session.expunge_all()
+            return locations
+
+    def remove_location_by_id(self, location_id: int) -> bool:
+        """
+        Remove a location by its ID.
+        """
+        with self.Session.begin() as session:
+            location_to_remove = session.query(Location).filter_by(location_id=location_id).first()
+            if location_to_remove:
+                session.delete(location_to_remove)
+                return True
+            return False
+
+    def get_all(self) -> list[Location]:
+        """
+        Retrieve all locations.
+        """
+        with self.Session.begin() as session:
+            locations = session.query(Location).all()
+            session.expunge_all()
+            return locations
+
+    def get_location_by_id(self, location_id: int) -> Location:
+        """
+        Retrieve a single location by its ID.
+        """
+        with self.Session.begin() as session:
+            location = session.query(Location).filter_by(location_id=location_id).first()
+            session.expunge_all()
+            return location
+
+    # def update_location(self, location: Location) -> Location:
+    #     """
+    #     Update an existing location.
+    #     """
+    #     with self.Session.begin() as session:
+    #         existing_location = session.query(Location).filter_by(location_id=location.location_id).first()
+    #         if existing_location:
+    #             existing_location.name = location.name
+    #             existing_location.company_id = location.company_id
+    #             session.flush()
+    #             session.refresh(existing_location)
+    #             session.expunge_all()
+    #             return existing_location
+
+
+class LocationProviderRepo(BaseRepo):
+    def add_location_provider(self, location: LocationProvider) -> int:
+        """
+        Add a location and return the new instance.
+        """
+        with self.Session.begin() as session:
+            session.add(location)
+            session.flush()
+            session.refresh(location)
+            session.expunge_all()
+            return location.location_id
