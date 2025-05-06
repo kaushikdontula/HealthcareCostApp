@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)  # Add logging
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # Initialize conversation history at the start
+#test comment
 messages = [
     {
         "role": "system",
